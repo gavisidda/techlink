@@ -73,17 +73,22 @@ input,select,textarea{font-family:var(--fb);outline:none;color:var(--text)}
 .f-ro{background:rgba(61,142,248,.07);border-color:var(--accent2)!important;color:var(--accent2)!important;font-weight:700}
 .form-group{display:flex;flex-direction:column;gap:11px;margin-bottom:12px}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.loc-pick{background:var(--card);border:1.5px solid var(--border);border-radius:10px;overflow:hidden}
-.loc-pick input{width:100%;background:none;border:none;padding:10px 12px;color:var(--text);font-size:13px}
-.loc-btn{width:100%;padding:8px 12px;background:rgba(61,142,248,.1);color:var(--accent2);font-size:11px;font-weight:700;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:5px;cursor:pointer}
-.loc-btn svg{width:13px;height:13px;stroke:var(--accent2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.loc-search{display:flex;gap:7px;margin-top:6px}
-.loc-search input{flex:1;background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:12px}
-.loc-search button{background:var(--accent2);color:#fff;border-radius:8px;padding:8px 12px;font-size:11px;font-weight:700;white-space:nowrap}
-.loc-results{margin-top:6px;max-height:140px;overflow-y:auto;border-radius:8px;background:var(--surface);border:1px solid var(--border)}
-.loc-result-item{padding:9px 12px;font-size:11px;border-bottom:1px solid var(--border);cursor:pointer;line-height:1.4}
-.loc-result-item:last-child{border-bottom:none}
-.loc-result-item:active{background:var(--card)}
+.loc-unified{background:var(--card);border:1.5px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .2s}
+.loc-unified:focus-within{border-color:var(--accent)}
+.loc-unified-input{display:flex;align-items:center;gap:8px;padding:10px 12px}
+.loc-unified-input svg{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.loc-unified-input input{flex:1;background:none;border:none;color:var(--text);font-size:13px;min-width:0}
+.loc-unified-input input::placeholder{color:var(--muted)}
+.loc-unified-drop{max-height:160px;overflow-y:auto;border-top:1px solid var(--border)}
+.loc-unified-drop::-webkit-scrollbar{display:none}
+.loc-drop-item{padding:9px 14px;font-size:12px;border-bottom:1px solid rgba(42,53,80,.4);cursor:pointer;display:flex;align-items:flex-start;gap:7px;line-height:1.4;color:var(--text)}
+.loc-drop-item:last-child{border-bottom:none}
+.loc-drop-item:active{background:var(--card2)}
+.loc-drop-item .di-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+.loc-drop-item .di-loading{color:var(--muted);font-size:11px;padding:10px 14px}
+.loc-gps-btn{width:100%;padding:9px 12px;background:rgba(61,142,248,.08);color:var(--accent2);font-size:12px;font-weight:700;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;border-bottom:none;border-left:none;border-right:none;border-radius:0;font-family:var(--fb)}
+.loc-gps-btn svg{width:14px;height:14px;stroke:var(--accent2);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.loc-gps-btn:active{background:rgba(61,142,248,.15)}
 /*§7 BUTTONS */
 .btn-primary{width:100%;padding:12px;background:linear-gradient(135deg,#00c9a7,#0099cc);color:#fff;border-radius:10px;font-size:15px;font-weight:700;font-family:var(--fh);letter-spacing:.4px;transition:opacity .2s}
 .btn-primary:active{opacity:.85}
@@ -405,18 +410,19 @@ input,select,textarea{font-family:var(--fb);outline:none;color:var(--text)}
   <div class="modal-handle"></div><div class="modal-title">Raise Service Request</div>
   <div class="form-group">
     <div><label class="f-label">Your Name *</label><input class="f-input" id="ct-name" placeholder="Full name"/></div>
-    <div><label class="f-label">Address / Area *</label>
-      <div class="loc-pick">
-        <input id="ct-addr" placeholder="Your area or full address..."/>
-        <button class="loc-btn" onclick="getGPSLocation('ct-addr')">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.33 8 13 8 13s8-7.67 8-13a8 8 0 0 0-8-8z"/></svg>Use My Location
+    <div>
+      <label class="f-label">Your Address / Area *</label>
+      <div class="loc-unified">
+        <div class="loc-unified-input">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.33 8 13 8 13s8-7.67 8-13a8 8 0 0 0-8-8z"/></svg>
+          <input id="ct-addr" placeholder="Type area/address or use GPS..." oninput="liveSearch(this.value,'ct-loc-drop')"/>
+        </div>
+        <div class="loc-unified-drop" id="ct-loc-drop" style="display:none"></div>
+        <button class="loc-gps-btn" onclick="getGPSLocation('ct-addr','ct-loc-drop')">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7" stroke-dasharray="3 2"/></svg>
+          Use Current GPS Location
         </button>
       </div>
-      <div class="loc-search">
-        <input id="ct-addr-search" placeholder="Or search location..."/>
-        <button onclick="searchLocation('ct-addr-search','ct-loc-results')">Search</button>
-      </div>
-      <div class="loc-results" id="ct-loc-results" style="display:none"></div>
     </div>
     <div><label class="f-label">Service Needed</label>
       <select class="f-input f-select" id="ct-service">
@@ -438,20 +444,22 @@ input,select,textarea{font-family:var(--fb);outline:none;color:var(--text)}
   <div id="checkout-items" style="margin-bottom:12px"></div>
   <div style="font-family:var(--fh);font-size:14px;font-weight:700;margin-bottom:9px;color:var(--accent)">Delivery Address</div>
   <div class="form-group">
-    <div><label class="f-label">Full Address *</label>
-      <div class="loc-pick">
-        <input id="co-addr" placeholder="Your delivery address..."/>
-        <button class="loc-btn" onclick="getGPSLocation('co-addr')">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.33 8 13 8 13s8-7.67 8-13a8 8 0 0 0-8-8z"/></svg>Use GPS Location
+    <div>
+      <label class="f-label">Delivery Address *</label>
+      <div class="loc-unified" id="co-loc-wrap">
+        <div class="loc-unified-input">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.33 8 13 8 13s8-7.67 8-13a8 8 0 0 0-8-8z"/></svg>
+          <input id="co-addr" placeholder="Type address or use GPS below..." oninput="liveSearch(this.value,'co-loc-drop')"/>
+        </div>
+        <div class="loc-unified-drop" id="co-loc-drop" style="display:none"></div>
+        <button class="loc-gps-btn" onclick="getGPSLocation('co-addr','co-loc-drop')">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7" stroke-dasharray="3 2"/></svg>
+          Use Current GPS Location
         </button>
       </div>
-      <div class="loc-search">
-        <input id="co-addr-search" placeholder="Search on Google Maps..."/>
-        <button onclick="searchLocation('co-addr-search','co-loc-results')">Search</button>
-      </div>
-      <div class="loc-results" id="co-loc-results" style="display:none"></div>
     </div>
-    <div><label class="f-label">Landmark</label><input class="f-input" id="co-landmark" placeholder="Near landmark (optional)"/></div>
+    <div><label class="f-label">Landmark (optional)</label><input class="f-input" id="co-landmark" placeholder="Near school, temple, metro..."/></div>
+    <div><label class="f-label">Order Note (optional)</label><input class="f-input" id="co-cust-note" placeholder="Special instructions, preferred time..."/></div>
     <div><label class="f-label">Payment Method</label>
       <select class="f-input f-select" id="co-payment">
         <option value="COD">Cash on Delivery</option>
@@ -486,7 +494,7 @@ input,select,textarea{font-family:var(--fb);outline:none;color:var(--text)}
   <div style="margin-top:10px"><button class="btn-cancel" style="width:100%" onclick="closeModal('view-order')">Close</button></div>
 </div></div>
 
-<!-- Reset PIN Modal -->
+<!-- Reset PIN Modal — pin pad rendered by JS to avoid template literal issues in static HTML -->
 <div class="modal-overlay" id="modal-reset-pin"><div class="modal-sheet">
   <div class="modal-handle"></div><div class="modal-title">Reset User PIN</div>
   <div class="form-group">
@@ -498,9 +506,7 @@ input,select,textarea{font-family:var(--fb);outline:none;color:var(--text)}
       <div class="pin-display" id="rp-pin-display">
         <div class="pin-dot" id="rpd0"></div><div class="pin-dot" id="rpd1"></div><div class="pin-dot" id="rpd2"></div><div class="pin-dot" id="rpd3"></div>
       </div>
-      <div class="pin-pad">
-        ${[1,2,3,4,5,6,7,8,9,'','0','del'].map(k=>`<button class="pin-key${k==='del'?' del':k===''?' empty':''}" onclick="rpPinPress('${k}')">${k==='del'?'⌫':k}</button>`).join('')}
-      </div>
+      <div class="pin-pad" id="rp-pin-pad"></div>
     </div>
   </div>
   <div class="modal-actions">
@@ -523,6 +529,42 @@ input,select,textarea{font-family:var(--fb);outline:none;color:var(--text)}
   <div class="modal-actions">
     <button class="btn-cancel" onclick="closeModal('change-role')">Cancel</button>
     <button class="btn-save" onclick="doChangeRole()">Update Role</button>
+  </div>
+</div></div>
+
+<!-- Customer Edit Order Modal -->
+<div class="modal-overlay" id="modal-cust-edit-order"><div class="modal-sheet">
+  <div class="modal-handle"></div>
+  <div class="modal-title">Edit Order</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <span style="font-family:var(--fh);font-size:13px;font-weight:700;color:var(--accent)" id="eo-ref"></span>
+    <span id="eo-status-badge"></span>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:9px 12px;margin-bottom:12px;max-height:120px;overflow-y:auto" id="eo-items"></div>
+  <div class="form-group">
+    <div>
+      <label class="f-label">Delivery Address *</label>
+      <div class="loc-unified">
+        <div class="loc-unified-input">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.33 8 13 8 13s8-7.67 8-13a8 8 0 0 0-8-8z"/></svg>
+          <input id="eo-addr" placeholder="Type or use GPS..." oninput="liveSearch(this.value,'eo-loc-drop')"/>
+        </div>
+        <div class="loc-unified-drop" id="eo-loc-drop" style="display:none"></div>
+        <button class="loc-gps-btn" onclick="getGPSLocation('eo-addr','eo-loc-drop')">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7" stroke-dasharray="3 2"/></svg>
+          Use GPS Location
+        </button>
+      </div>
+    </div>
+    <div><label class="f-label">Landmark (optional)</label><input class="f-input" id="eo-landmark" placeholder="Near school, temple, metro..."/></div>
+    <div><label class="f-label">Order Note</label><input class="f-input" id="eo-note" placeholder="Special instructions, preferred time..."/></div>
+  </div>
+  <div style="background:rgba(243,156,18,.08);border:1px solid rgba(243,156,18,.2);border-radius:8px;padding:9px 11px;font-size:11px;color:var(--warn);margin-bottom:12px">
+    ⚠️ You can only edit address and notes. Once order is Dispatched or Delivered, editing is locked.
+  </div>
+  <div class="modal-actions">
+    <button class="btn-cancel" onclick="closeModal('cust-edit-order')">Cancel</button>
+    <button class="btn-save" onclick="saveCustOrderEdit()">Save Changes</button>
   </div>
 </div></div>
 
@@ -566,27 +608,51 @@ function initFirebase(){
 }
 
 /*§2 FIREBASE CRUD */
+function useFirebase(){return !IS_DEMO&&db!==null;}
 async function fbAdd(col,obj){
-  if(IS_DEMO){
+  // Always update local state first
+  if(!S.data[col])S.data[col]=[];
+  if(useFirebase()){
+    try{
+      // Remove undefined fields that Firestore rejects
+      const clean=JSON.parse(JSON.stringify(obj));
+      clean._ts=firebase.firestore.FieldValue.serverTimestamp();
+      const ref=await db.collection(col).add(clean);
+      obj.id=ref.id;clean.id=ref.id;
+      S.data[col].unshift(obj);
+      return ref.id;
+    }catch(e){console.error('fbAdd error',col,e);toast('Save error: '+e.message);throw e;}
+  } else {
     const id='id_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
-    obj.id=id;if(!S.data[col])S.data[col]=[];S.data[col].unshift(obj);return id;
+    obj.id=id;S.data[col].unshift(obj);return id;
   }
-  const ref=await db.collection(col).add(obj);
-  obj.id=ref.id;if(!S.data[col])S.data[col]=[];S.data[col].unshift(obj);return ref.id;
 }
 async function fbUpdate(col,id,upd){
   const item=S.data[col]?.find(x=>x.id===id);
   if(item)Object.assign(item,upd);
-  if(!IS_DEMO&&db)await db.collection(col).doc(id).set(upd,{merge:true});
+  if(useFirebase()){
+    try{
+      const clean=JSON.parse(JSON.stringify(upd));
+      await db.collection(col).doc(id).set(clean,{merge:true});
+    }catch(e){console.error('fbUpdate error',col,id,e);toast('Update error: '+e.message);}
+  }
 }
 async function fbDelete(col,id){
   S.data[col]=S.data[col]?.filter(x=>x.id!==id)||[];
-  if(!IS_DEMO&&db)await db.collection(col).doc(id).delete();
+  if(useFirebase()){
+    try{await db.collection(col).doc(id).delete();}
+    catch(e){console.error('fbDelete error',col,id,e);}
+  }
 }
 async function fbGet(col){
-  if(IS_DEMO)return S.data[col]||[];
-  try{const snap=await db.collection(col).orderBy('date','desc').get();return snap.docs.map(d=>({id:d.id,...d.data()}));}
-  catch(e){return S.data[col]||[];}
+  if(!useFirebase())return S.data[col]||[];
+  try{
+    // Try ordered by _ts first, fallback to unordered
+    let snap;
+    try{snap=await db.collection(col).orderBy('_ts','desc').get();}
+    catch{snap=await db.collection(col).get();}
+    return snap.docs.map(d=>({id:d.id,...d.data()}));
+  }catch(e){console.warn('fbGet error',col,e);return S.data[col]||[];}
 }
 
 /*§3 STATE */
@@ -594,7 +660,7 @@ const S={
   role:null,user:null,saving:false,
   cart:[],
   viewingTicketId:null,viewingOrderId:null,
-  editingProductId:null,resetPinUserId:null,changeRoleUserId:null,
+  editingProductId:null,editingOrderId:null,resetPinUserId:null,changeRoleUserId:null,
   rpBuffer:'',
   data:{
     products:[
@@ -1137,9 +1203,18 @@ async function toggleUserActive(uid){
 let rpBuffer='';
 function openResetPin(uid,name,mobile){
   S.resetPinUserId=uid;rpBuffer='';
-  document.getElementById('rp-user-info').innerHTML=`<strong>${name}</strong> · +91 ${mobile}`;
-  document.getElementById('rp-save-btn').disabled=true;document.getElementById('rp-save-btn').style.opacity='.5';
+  document.getElementById('rp-user-info').innerHTML='<strong>'+name+'</strong> · +91 '+mobile;
+  document.getElementById('rp-save-btn').disabled=true;
+  document.getElementById('rp-save-btn').style.opacity='.5';
   for(let i=0;i<4;i++)document.getElementById('rpd'+i)?.classList.remove('filled');
+  // Render pin pad dynamically
+  const pad=document.getElementById('rp-pin-pad');
+  if(pad)pad.innerHTML=[1,2,3,4,5,6,7,8,9,'','0','del'].map(k=>{
+    const cls='pin-key'+(k==='del'?' del':k===''?' empty':'');
+    const lbl=k==='del'?'⌫':String(k);
+    const fn=k===''?'':('onclick="rpPinPress(''+k+'')"');
+    return '<button class="'+cls+'" '+fn+'>'+lbl+'</button>';
+  }).join('');
   openModal('reset-pin');
 }
 function rpPinPress(k){
@@ -1292,8 +1367,8 @@ function openCheckout(){
   const total=S.cart.reduce((s,i)=>s+i.qty*i.price,0);
   document.getElementById('checkout-items').innerHTML=S.cart.map(i=>`<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)"><span>${i.name} × ${i.qty}</span><span style="color:var(--accent);font-weight:700">₹${fmt(i.qty*i.price)}</span></div>`).join('');
   document.getElementById('co-total').textContent='₹'+fmt(total);
-  sv('co-addr','');sv('co-landmark','');sv('co-addr-search','');
-  document.getElementById('co-loc-results').style.display='none';
+  sv('co-addr','');sv('co-landmark','');sv('co-cust-note','');
+  const codrop=document.getElementById('co-loc-drop');if(codrop)codrop.style.display='none';
   openModal('checkout');
 }
 async function placeOrder(){
@@ -1302,7 +1377,7 @@ async function placeOrder(){
   if(!addr){toast('Enter delivery address');S.saving=false;return;}
   const total=S.cart.reduce((s,i)=>s+i.qty*i.price,0);
   const num='ORD-'+Date.now().toString().slice(-6);
-  const order={refNum:num,customerName:S.user?.name||'',customerMobile:S.user?.mobile||'',mobile:S.user?.mobile||'',addr,landmark:v('co-landmark'),payment:selVal('co-payment'),items:[...S.cart],total,status:'pending',date:today(),adminNote:''};
+  const order={refNum:num,customerName:S.user?.name||'',customerMobile:S.user?.mobile||'',mobile:S.user?.mobile||'',addr,landmark:v('co-landmark'),custNote:v('co-cust-note'),payment:selVal('co-payment'),items:[...S.cart],total,status:'pending',date:today(),adminNote:''};
   await fbAdd('orders',order);
   S.cart=[];updateCartBadge();
   closeModal('checkout');renderCustOrders();renderCustHome();
@@ -1310,21 +1385,66 @@ async function placeOrder(){
 }
 
 /*§19 CUSTOMER ORDERS */
+const ORDER_LOCKED=['dispatched','delivered','cancelled'];
+function canEditOrder(status){return!ORDER_LOCKED.includes(status);}
 function renderCustOrders(){
   const mine=S.data.orders.filter(o=>o.customerMobile===S.user?.mobile||o.mobile===S.user?.mobile);
-  document.getElementById('screen-cust-orders').innerHTML=`
-    ${mine.length?mine.map(o=>`
-      <div class="order-card">
-        <div class="order-head"><span class="order-num">${o.refNum||o.id}</span><span class="badge ${badgeClass(o.status)}">${o.status}</span></div>
-        <div class="order-items">${(o.items||[]).map(i=>`${i.name} × ${i.qty}`).join(' | ')}</div>
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <span class="order-total">₹${fmt(o.total)}</span>
-          <span style="font-size:10px;color:var(--muted)">${o.date} · ${o.payment||'COD'}</span>
-        </div>
-        ${o.addr?`<div style="font-size:10px;color:var(--muted);margin-top:4px">📍 ${o.addr}</div>`:''}
-        ${o.adminNote?`<div style="font-size:11px;color:var(--orange);margin-top:4px;font-style:italic">Note: ${o.adminNote}</div>`:''}
-      </div>`).join(''):`<div class="empty" style="margin-top:30px"><div class="ei">🛒</div><p>No orders yet.<br><button class="link-btn" onclick="showScreen('cust-shop')">Start Shopping →</button></p></div>`}
-    <div style="height:8px"></div>`;
+  document.getElementById('screen-cust-orders').innerHTML=
+    (mine.length?mine.map(o=>{
+      const locked=!canEditOrder(o.status);
+      const items=(o.items||[]);
+      const itemLines=items.map(i=>
+        '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid var(--border)">'+
+        '<span>'+i.name+' × '+i.qty+'</span>'+
+        '<span style="color:var(--accent);font-weight:700">₹'+fmt(i.qty*i.price)+'</span></div>'
+      ).join('');
+      return '<div class="order-card">'+
+        '<div class="order-head">'+
+          '<div><div class="order-num">'+( o.refNum||o.id)+'</div>'+
+          '<div style="font-size:10px;color:var(--muted);margin-top:2px">'+o.date+' · '+(o.payment||'COD')+'</div></div>'+
+          '<span class="badge '+badgeClass(o.status)+'">'+o.status+'</span>'+
+        '</div>'+
+        '<div style="background:var(--surface);border-radius:7px;padding:8px 10px;margin-bottom:8px">'+itemLines+'</div>'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
+          '<span style="font-size:11px;color:var(--muted)">📍 '+(o.addr||'—')+'</span>'+
+          '<span class="order-total">₹'+fmt(o.total)+'</span>'+
+        '</div>'+
+        (o.landmark?'<div style="font-size:11px;color:var(--muted);margin-bottom:4px">🏠 Near: '+o.landmark+'</div>':'')+
+        (o.custNote?'<div style="background:rgba(61,142,248,.08);border:1px solid rgba(61,142,248,.2);border-radius:7px;padding:6px 9px;font-size:11px;color:var(--accent2);margin-bottom:6px">📝 '+o.custNote+'</div>':'')+
+        (o.adminNote?'<div style="background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.2);border-radius:7px;padding:6px 9px;font-size:11px;color:var(--orange);margin-bottom:6px">📋 Admin: '+o.adminNote+'</div>':'')+
+        (!locked?'<button class="btn-sm-accent" style="font-size:11px;padding:6px 12px" onclick="custEditOrder(''+o.id+'')">✏ Edit Order</button>':
+          '<div style="font-size:10px;color:var(--muted);font-style:italic">🔒 Order '+o.status+' — cannot be modified</div>')+
+        '</div>';
+    }).join(''):'<div class="empty" style="margin-top:30px"><div class="ei">🛒</div><p>No orders yet.<br><button class="link-btn" onclick="showScreen('cust-shop')">Start Shopping →</button></p></div>')+
+    '<div style="height:8px"></div>';
+}
+function custEditOrder(oid){
+  const o=S.data.orders.find(x=>x.id===oid);
+  if(!o){toast('Order not found');return;}
+  if(!canEditOrder(o.status)){toast('Order is '+o.status+' and cannot be modified');return;}
+  S.editingOrderId=oid;
+  // Populate edit modal
+  document.getElementById('eo-ref').textContent=o.refNum||oid;
+  document.getElementById('eo-status-badge').innerHTML='<span class="badge '+badgeClass(o.status)+'">'+o.status+'</span>';
+  document.getElementById('eo-items').innerHTML=(o.items||[]).map(i=>
+    '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0">'+
+    '<span>'+i.name+' × '+i.qty+'</span><span style="color:var(--accent)">₹'+fmt(i.qty*i.price)+'</span></div>'
+  ).join('');
+  document.getElementById('eo-addr').value=o.addr||'';
+  document.getElementById('eo-landmark').value=o.landmark||'';
+  document.getElementById('eo-note').value=o.custNote||'';
+  document.getElementById('eo-loc-results').style.display='none';
+  openModal('cust-edit-order');
+}
+async function saveCustOrderEdit(){
+  if(S.saving)return;S.saving=true;
+  const oid=S.editingOrderId;
+  const o=S.data.orders.find(x=>x.id===oid);
+  if(!o||!canEditOrder(o.status)){toast('Cannot update this order');S.saving=false;return;}
+  const addr=v('eo-addr');
+  if(!addr){toast('Enter delivery address');S.saving=false;return;}
+  await fbUpdate('orders',oid,{addr,landmark:v('eo-landmark'),custNote:v('eo-note')});
+  closeModal('cust-edit-order');renderCustOrders();toast('✅ Order updated!');S.saving=false;
 }
 
 /*§20 CUSTOMER TICKETS */
@@ -1381,40 +1501,85 @@ function renderCustProfile(){
     </div>`;
 }
 
-/*§22 LOCATION HELPERS */
-function getGPSLocation(fieldId){
-  if(!navigator.geolocation){toast('Location not supported');return;}
-  const el=document.getElementById(fieldId);if(el)el.value='Getting location...';
-  navigator.geolocation.getCurrentPosition(pos=>{
-    const{latitude:lat,longitude:lng}=pos.coords;
-    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`)
-      .then(r=>r.json()).then(d=>{
-        const addr=d.display_name||`${lat.toFixed(5)}, ${lng.toFixed(5)}`;
-        if(el)el.value=addr;toast('📍 Location captured');
-      }).catch(()=>{if(el)el.value=`${lat.toFixed(5)}, ${lng.toFixed(5)}`;});
-  },err=>{toast('Location denied. Please enter manually.');if(el)el.value='';});
+/*§22 LOCATION HELPERS — unified GPS + live-search dropdown */
+let _locTimer=null;
+
+// Called oninput — debounced 500ms live search via Nominatim
+function liveSearch(q,dropId){
+  const drop=document.getElementById(dropId);
+  if(!drop)return;
+  if(!q||q.length<3){drop.style.display='none';return;}
+  clearTimeout(_locTimer);
+  drop.style.display='block';
+  drop.innerHTML='<div class="loc-drop-item"><span class="di-loading">🔍 Searching...</span></div>';
+  _locTimer=setTimeout(async function(){
+    try{
+      const url='https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(q+', Bangalore, Karnataka, India')+'&format=json&limit=6&addressdetails=1';
+      const res=await(await fetch(url)).json();
+      if(!document.getElementById(dropId))return;
+      if(!res||!res.length){
+        drop.innerHTML='<div class="loc-drop-item"><span class="di-loading">No results. Try different keywords.</span></div>';
+        return;
+      }
+      const inputId=dropId==='ct-loc-drop'?'ct-addr':dropId==='eo-loc-drop'?'eo-addr':'co-addr';
+      drop.innerHTML=res.map(function(item){
+        const safe=item.display_name.replace(/'/g,'&#39;').replace(/"/g,'&quot;');
+        return '<div class="loc-drop-item" onclick="pickLocDrop(\''+inputId+'\',\''+dropId+'\',\''+safe+'\')">'+
+               '<span class="di-icon">📍</span><span>'+item.display_name+'</span></div>';
+      }).join('');
+    }catch(e){
+      const drop2=document.getElementById(dropId);
+      if(drop2)drop2.innerHTML='<div class="loc-drop-item"><span class="di-loading" style="color:var(--danger)">Search failed. Check internet.</span></div>';
+    }
+  },500);
 }
-async function searchLocation(searchFieldId,resultsId){
-  const q=document.getElementById(searchFieldId)?.value?.trim();
-  if(!q||q.length<3){toast('Enter at least 3 characters');return;}
-  const el=document.getElementById(resultsId);
-  if(el){el.style.display='block';el.innerHTML=`<div style="padding:10px;font-size:11px;color:var(--muted);text-align:center">Searching...</div>`;}
-  try{
-    const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q+', Bangalore, Karnataka, India')}&format=json&limit=5&addressdetails=1`);
-    const results=await r.json();
-    if(!el)return;
-    if(!results.length){el.innerHTML=`<div style="padding:10px;font-size:11px;color:var(--muted);text-align:center">No results. Try different keywords.</div>`;return;}
-    // Determine target input: the input sibling that's not the search bar
-    const targetId=resultsId==='ct-loc-results'?'ct-addr':'co-addr';
-    el.innerHTML=results.map((r,i)=>`<div class="loc-result-item" onclick="pickLocation('${targetId}','${resultsId}','${escStr(r.display_name)}')">📍 ${r.display_name}</div>`).join('');
-  }catch(e){if(el)el.innerHTML=`<div style="padding:10px;font-size:11px;color:var(--danger);text-align:center">Search failed. Check internet.</div>`;}
+
+// Pick a result from dropdown
+function pickLocDrop(inputId,dropId,addr){
+  const el=document.getElementById(inputId);
+  if(el)el.value=addr;
+  const drop=document.getElementById(dropId);
+  if(drop)drop.style.display='none';
+  toast('📍 Address selected');
 }
-function pickLocation(targetId,resultsId,addr){
-  const el=document.getElementById(targetId);if(el)el.value=addr;
-  const res=document.getElementById(resultsId);if(res)res.style.display='none';
-  toast('📍 Location selected');
+
+// GPS current location — fills input field and hides dropdown
+function getGPSLocation(fieldId,dropId){
+  if(!navigator.geolocation){toast('GPS not supported on this device');return;}
+  const el=document.getElementById(fieldId);
+  const drop=document.getElementById(dropId);
+  if(el)el.value='📡 Getting your location...';
+  if(drop)drop.style.display='none';
+  navigator.geolocation.getCurrentPosition(
+    function(pos){
+      var lat=pos.coords.latitude,lng=pos.coords.longitude;
+      fetch('https://nominatim.openstreetmap.org/reverse?lat='+lat+'&lon='+lng+'&format=json&addressdetails=1')
+        .then(function(r){return r.json();})
+        .then(function(d){
+          var addr=d.display_name||(lat.toFixed(5)+', '+lng.toFixed(5));
+          if(el)el.value=addr;
+          toast('📍 Location captured!');
+        })
+        .catch(function(){
+          if(el)el.value=lat.toFixed(5)+', '+lng.toFixed(5);
+          toast('📍 Coordinates captured');
+        });
+    },
+    function(err){
+      if(el)el.value='';
+      var msg={1:'Location permission denied. Please allow access.',2:'Location unavailable. Enter manually.',3:'Request timed out.'};
+      toast(msg[err.code]||'Could not get location');
+    },
+    {enableHighAccuracy:true,timeout:10000,maximumAge:0}
+  );
 }
-function escStr(s){return s.replace(/'/g,"\\'").replace(/"/g,'\\"');}
+
+// Close location dropdowns when clicking outside
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.loc-unified')){
+    document.querySelectorAll('.loc-unified-drop').forEach(function(d){d.style.display='none';});
+  }
+});
 
 /*§23 UTILS */
 function openModal(name){
