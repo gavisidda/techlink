@@ -269,60 +269,6 @@ input,select,textarea{font-family:var(--fb);outline:none;color:var(--tx)}
   <div class="dots"><span></span><span></span><span></span></div>
 </div>
 
-<!-- SETUP GUIDE -->
-<div id="setup">
-<div class="su-in">
-  <div class="su-logo">
-    <div class="su-ic"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-    <h1>TECHLINK</h1><p>Firebase Setup Required</p>
-  </div>
-  <div class="wb">⚠️ Firebase not configured. Fill the form below once to go live. Config is saved in your browser (localStorage).</div>
-  <div class="sb2">
-    <div class="sn">1</div><h4>Paste Your Firebase Config</h4>
-    <p>Go to <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> → Your Project → Project Settings → Web App → Copy config values.</p>
-    <div class="su-fields">
-      <div><label>API Key</label><input id="cfg-key" placeholder="AIzaSy..."/></div>
-      <div><label>Auth Domain</label><input id="cfg-dom" placeholder="yourapp.firebaseapp.com"/></div>
-      <div><label>Project ID</label><input id="cfg-pid" placeholder="yourapp"/></div>
-      <div><label>Storage Bucket</label><input id="cfg-bkt" placeholder="yourapp.appspot.com"/></div>
-      <div><label>Messaging Sender ID</label><input id="cfg-sid" placeholder="123456789012"/></div>
-      <div><label>App ID</label><input id="cfg-aid" placeholder="1:123...:web:abc..."/></div>
-      <div><label>Admin PIN (4 digits)</label><input id="cfg-pin" type="password" maxlength="4" placeholder="e.g. 5678"/></div>
-    </div>
-    <button class="su-btn" onclick="saveSetup()">✅ Save Config &amp; Launch</button>
-  </div>
-  <div class="sb2">
-    <div class="sn">2</div><h4>Enable Firestore</h4>
-    <p>Firebase Console → <b>Firestore Database</b> → Create Database → Region: <b>asia-south1</b> → Start in <b>Production Mode</b>.</p>
-  </div>
-  <div class="sb2">
-    <div class="sn">3</div><h4>Set Security Rules</h4>
-    <p>Firestore → Rules → Replace all and Publish:</p>
-    <div class="cb">rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if true;
-    }
-  }
-}</div>
-    <p style="font-size:11px;color:var(--wn);margin-top:6px">⚠️ Open rules for private business use. Add auth rules later for public apps.</p>
-  </div>
-  <div class="sb2">
-    <div class="sn">4</div><h4>Deploy to GitHub Pages</h4>
-    <p>After saving config, download this file as <b>index.html</b> and push to your repo:</p>
-    <div class="cb">git add index.html
-git commit -m "TechLink live"
-git push</div>
-    <p style="margin-top:6px">Your site: <a href="https://gavisidda.github.io/techlink/" target="_blank">gavisidda.github.io/techlink/</a></p>
-  </div>
-  <div class="sb2" style="border-color:rgba(0,201,167,.3)">
-    <div class="sn" style="background:var(--ac2)">?</div><h4>Already Configured?</h4>
-    <p>Config was saved before. If seeing this screen your storage was cleared — just fill the form again above.</p>
-    <button class="ba" style="margin-top:10px;width:100%" onclick="location.reload()">🔄 Reload App</button>
-  </div>
-</div>
-</div>
 
 <!-- AUTH -->
 <div id="auth">
@@ -474,22 +420,22 @@ git push</div>
   <div class="mact"><button class="bc" onclick="cmo('role')">Cancel</button><button class="bs" onclick="doRole()">Update Role</button></div>
 </div></div>
 <script>
-// ── CONFIG ──────────────────────────────────────
-const CK='tl_cfg';
-let db=null;
-function getAdminPin(){return localStorage.getItem('tl_apin')||'1234';}
-function loadCfg(){try{return JSON.parse(localStorage.getItem(CK));}catch{return null;}}
-function saveSetup(){
-  const c={apiKey:gv('cfg-key'),authDomain:gv('cfg-dom'),projectId:gv('cfg-pid'),
-    storageBucket:gv('cfg-bkt'),messagingSenderId:gv('cfg-sid'),appId:gv('cfg-aid')};
-  if(!c.apiKey||!c.projectId){toast('Enter at least API Key and Project ID');return;}
-  const pin=gv('cfg-pin');
-  if(pin){if(!/^\d{4}$/.test(pin)){toast('Admin PIN must be 4 digits');return;}localStorage.setItem('tl_apin',pin);}
-  localStorage.setItem(CK,JSON.stringify(c));
-  toast('Saved! Reloading...');setTimeout(()=>location.reload(),700);
-}
+// ── FIREBASE CONFIG — fill in your values, do not share publicly ──────────────
+const FB_CONFIG = {
+  apiKey:            "AIzaSyB8zQz_aoKMNbp4d0vlocnxETeZzCTKsPM",
+  authDomain:        "techlink-demo.firebaseapp.com",
+  projectId:         "techlink-demo",
+  storageBucket:     "techlink-demo.firebasestorage.app",
+  messagingSenderId: "362784885470",
+  appId:             "1:362784885470:web:34cc19eaabf3b5aef1504f"
+};
 
-// ── FIREBASE ─────────────────────────────────────
+// ── ADMIN PIN — change this to your 4-digit PIN ───────────────────────────────
+const ADMIN_PIN = "3384";
+
+let db = null;
+
+// ── FIREBASE CRUD ─────────────────────────────────
 async function fadd(col,obj){
   const clean=JSON.parse(JSON.stringify(obj));
   clean._ts=firebase.firestore.FieldValue.serverTimestamp();
@@ -531,15 +477,20 @@ const SVCS=[
 
 // ── INIT ──────────────────────────────────────────
 async function init(){
-  const cfg=loadCfg();
-  if(!cfg||!cfg.apiKey){hideSpl();show('setup');return;}
-  try{firebase.initializeApp(cfg);db=firebase.firestore();db.settings({ignoreUndefinedProperties:true});}
-  catch(e){console.error(e);hideSpl();show('setup');return;}
+  try{
+    firebase.initializeApp(FB_CONFIG);
+    db=firebase.firestore();
+    db.settings({ignoreUndefinedProperties:true});
+  }catch(e){
+    console.error('Firebase init failed:',e);
+    document.getElementById('splash').innerHTML='<div style="padding:30px;text-align:center;color:#e74c3c;font-family:sans-serif"><div style="font-size:2rem;margin-bottom:12px">⚠️</div><div style="font-size:14px;font-weight:700">Firebase Config Error</div><div style="font-size:12px;color:#7a8aa8;margin-top:8px">Check your FB_CONFIG values in the script.<br>'+e.message+'</div></div>';
+    return;
+  }
   ld('Loading data...');
   try{
     const[p,t,o,u]=await Promise.all([fall('products'),fall('tickets'),fall('orders'),fall('users')]);
     D.products=p;D.tickets=t;D.orders=o;D.users=u;
-  }catch(e){console.warn(e);}
+  }catch(e){console.warn('Data load:',e);}
   hl();hideSpl();show('auth');
   selRole('admin');buildRoleForm('admin','login');
 }
@@ -570,7 +521,7 @@ function pp(k){
 }
 async function tryLogin(){
   const pin=pBuf;
-  if(sRole==='admin'){if(pin===getAdminPin())doLogin('admin',{id:'admin',name:'Admin',role:'admin'});else{shk();toast('Wrong Admin PIN ❌');}return;}
+  if(sRole==='admin'){if(pin===ADMIN_PIN)doLogin('admin',{id:'admin',name:'Admin',role:'admin'});else{shk();toast('Wrong Admin PIN ❌');}return;}
   const mob=(document.getElementById('auth-mob')?.value||'').trim();
   if(mob.length!==10){shk();toast('Enter valid 10-digit mobile');return;}
   if(aMode==='register'){
