@@ -761,8 +761,8 @@ function openVT(id){
   .map(([l,v])=>'<div class="dr"><span class="dr-l">'+l+'</span><span class="dr-v">'+v+'</span></div>').join('')+
   (techU?'<div class="tech-badge"><span class="tb-ic">🔧</span><div><div style="font-weight:700;font-size:12px">Assigned: '+techU.name+'</div><div style="font-size:11px;color:var(--mt)">+91 '+techU.mobile+'</div></div></div>':'')+
   '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">'+
-  (ROLE==='admin'?'<button class="ba" style="font-size:11px;padding:6px 11px" onclick="openAssign(''+t.id+'')">🔧 Assign Tech</button>':'')+
-  '<button class="bg" style="font-size:11px;padding:6px 11px" onclick="openNotes('ticket',''+t.id+'')">📋 Notes History</button></div>';
+  (ROLE==='admin'?'<button class="ba" style="font-size:11px;padding:6px 11px" onclick="openAssign(\''+t.id+'\')">🔧 Assign Tech</button>':'')+
+  '<button class="bg" style="font-size:11px;padding:6px 11px" onclick="openNotes(\'ticket\',\''+t.id+'\')">📋 Notes History</button></div>';
   sv2('vtkt-st',t.status);sv('vtkt-notes','');
   document.getElementById('vtkt-upd').style.display=['done','cancel'].includes(t.status)?'none':'block';omo('vtkt');
 }
@@ -1001,7 +1001,7 @@ function rCtix(){
     const techU=t.assignedTechId?D.users.find(x=>x.id===t.assignedTechId):null;
     return'<div class="rca"><div class="rca-hd"><div><div class="rca-num">'+(t.refNum||'')+'</div><div class="rca-name">'+t.service+'</div><div class="rca-sub">'+t.date+'</div></div><span class="bdg '+bc(t.status)+'">'+t.status+'</span></div>'+
     (t.addr?'<div class="rca-meta"><span>📍 '+t.addr+'</span></div>':'')+
-    (techU?'<div class="tech-badge"><span class="tb-ic">🔧</span><div><div style="font-weight:700;font-size:12px">Technician: '+techU.name+'</div><div style="font-size:11px;color:var(--mt)">📞 +91 '+techU.mobile+'</div></div><button class="ra rawa" style="margin-left:auto" onclick="wa(''+techU.mobile+'',''+techU.name+'')">💬</button></div>':'')+
+    (techU?'<div class="tech-badge"><span class="tb-ic">🔧</span><div><div style="font-weight:700;font-size:12px">Technician: '+techU.name+'</div><div style="font-size:11px;color:var(--mt)">📞 +91 '+techU.mobile+'</div></div><button class="ra rawa" style="margin-left:auto" onclick="wa(\''+techU.mobile+'\',\''+techU.name+'\')">💬</button></div>':'')+
     (t.notes?'<div class="rca-note">📋 '+t.notes+'</div>':'')+
     '</div>';
   }).join(''):'<div class="empty" style="padding:14px"><div class="ei">🎫</div><p>No requests yet</p></div>')+
