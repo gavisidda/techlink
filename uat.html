@@ -4,9 +4,9 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
 <title>TechLink – IT Service & Solutions</title>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Noto+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Noto+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -63,7 +63,6 @@ input,select,textarea{font-family:var(--fb);outline:none;color:var(--tx)}
 .su-btn{width:100%;padding:13px;background:linear-gradient(135deg,#00c9a7,#0099cc);color:#fff;border-radius:10px;font-family:var(--fh);font-size:16px;font-weight:700;letter-spacing:.4px;margin-top:12px;cursor:pointer}
 /* auth */
 #auth{display:none;position:fixed;inset:0;background:var(--bg);overflow-y:auto;z-index:500}
-#auth.on{display:block}
 .au-in{min-height:100%;display:flex;flex-direction:column;align-items:center;padding:12px 16px 32px}
 .au-logo{text-align:center;padding:16px 0 10px}
 .al-ic{width:54px;height:54px;background:linear-gradient(135deg,#00c9a7,#0099ff);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;box-shadow:0 6px 20px rgba(0,201,167,.3)}
@@ -490,28 +489,53 @@ const SVCS=[
 ];
 
 // ── INIT ──────────────────────────────────────────
-async function init(){
+function hideSpl(){
+  var s=document.getElementById('splash');
+  if(!s)return;
+  s.style.transition='opacity .3s';
+  s.style.opacity='0';
+  setTimeout(function(){s.style.display='none';},350);
+}
+function showAuth(){
+  var a=document.getElementById('auth');
+  a.style.display='block';
+  selRole('admin');
+  buildRoleForm('admin','login');
+}
+function show(id){var el=document.getElementById(id);if(el)el.classList.add('on');}
+function hide(id){var el=document.getElementById(id);if(el)el.classList.remove('on');}
+
+function init(){
+  // Initialise Firebase — errors shown on splash
   try{
     firebase.initializeApp(FB_CONFIG);
     db=firebase.firestore();
     db.settings({ignoreUndefinedProperties:true});
   }catch(e){
-    console.error('Firebase init failed:',e);
-    document.getElementById('splash').innerHTML='<div style="padding:30px;text-align:center;color:#e74c3c;font-family:sans-serif"><div style="font-size:2rem;margin-bottom:12px">⚠️</div><div style="font-size:14px;font-weight:700">Firebase Config Error</div><div style="font-size:12px;color:#7a8aa8;margin-top:8px">Check your FB_CONFIG values in the script.<br>'+e.message+'</div></div>';
+    console.error('Firebase error:',e);
+    var s=document.getElementById('splash');
+    s.style.display='flex';s.style.opacity='1';
+    s.innerHTML='<div style="padding:28px;text-align:center"><div style="font-size:2.5rem">⚠️</div>'+
+      '<div style="font-family:Rajdhani,sans-serif;font-size:18px;font-weight:700;color:#e74c3c;margin-top:10px">Firebase Error</div>'+
+      '<div style="font-size:12px;color:#7a8aa8;margin-top:8px;line-height:1.6">'+e.message+'</div></div>';
     return;
   }
-  ld('Loading data...');
-  try{
-    const[p,t,o,u]=await Promise.all([fall('products'),fall('tickets'),fall('orders'),fall('users')]);
-    D.products=p;D.tickets=t;D.orders=o;D.users=u;
-    await loadServices();
-  }catch(e){console.warn('Data load:',e);}
-  hl();hideSpl();show('auth');
-  selRole('admin');buildRoleForm('admin','login');
+
+  // Hide splash after 1s then show auth — same pattern as working index.html
+  setTimeout(function(){
+    document.getElementById('splash').style.opacity='0';
+    setTimeout(function(){
+      document.getElementById('splash').style.display='none';
+      showAuth();
+      // Load all data in background
+      Promise.all([fall('products'),fall('tickets'),fall('orders'),fall('users')])
+        .then(function(res){
+          D.products=res[0];D.tickets=res[1];D.orders=res[2];D.users=res[3];
+          loadServices();
+        }).catch(function(e){console.warn('Data load:',e);});
+    },400);
+  },1000);
 }
-function hideSpl(){const s=document.getElementById('splash');s.style.opacity='0';setTimeout(()=>s.style.display='none',400);}
-function show(id){document.getElementById(id).classList.add('on');}
-function hide(id){document.getElementById(id).classList.remove('on');}
 
 // ── AUTH ──────────────────────────────────────────
 let sRole='admin',aMode='login',pBuf='';
@@ -548,7 +572,9 @@ async function tryLogin(){
     catch(e){hl();toast('Error: '+e.message);}return;
   }
   ld('Signing in...');
-  try{D.users=await fall('users');}catch{}hl();
+  // Use already-loaded users; re-fetch only if empty
+  if(!D.users.length){try{D.users=await fall('users');}catch{}}
+  hl();
   const u=D.users.find(x=>x.mobile===mob&&x.pin===pin);
   if(!u){shk();toast('Wrong mobile or PIN ❌');return;}
   if(u.active===false){shk();toast('Account disabled. Contact admin.');return;}
@@ -560,12 +586,22 @@ function clrPins(){const r=document.getElementById('pin-row');if(r)r.querySelect
 function shk(){const r=document.getElementById('pin-row');if(r){r.style.animation='shake .3s ease';setTimeout(()=>r.style.animation='',350);}pBuf='';clrPins();}
 function doLogin(role,user){
   ROLE=role;U=user;CART=[];
-  hide('auth');
+  document.getElementById('auth').style.display='none';
   document.getElementById('app').style.display='flex';
   document.getElementById('topbar').style.display='block';
   document.getElementById('bnav').style.display='block';
-  buildNav();goS(role==='customer'?'ch':role==='technician'?'tickets':'home');
+  buildNav();
+  goS(role==='customer'?'ch':role==='technician'?'tickets':'home');
   toast('Welcome, '+user.name+' 👋');
+  // Refresh all data in background after login
+  Promise.all([fall('products'),fall('tickets'),fall('orders'),fall('users')])
+    .then(function(res){
+      D.products=res[0];D.tickets=res[1];D.orders=res[2];D.users=res[3];
+      loadServices();
+      // Re-render current screen with fresh data
+      const cur=document.querySelector('.scr.on');
+      if(cur){const id=cur.id.replace('s-','');if(SCRFN[id])SCRFN[id]();}
+    }).catch(function(e){console.warn('Post-login data refresh:',e);});
 }
 
 // ── NAV ───────────────────────────────────────────
@@ -1027,7 +1063,7 @@ document.addEventListener('click',function(e){if(!e.target.closest('.loc'))docum
 function omo(id){const el=document.getElementById('mo-'+id);if(el)el.classList.add('on');if(id==='tkt'){const d=document.getElementById('tk-dt');if(d)d.valueAsDate=new Date();}}
 function cmo(id){const el=document.getElementById('mo-'+id);if(el)el.classList.remove('on');}
 document.addEventListener('click',function(e){if(e.target.classList.contains('mo'))e.target.classList.remove('on');});
-function logout(){ROLE=null;U=null;CART=[];document.getElementById('app').style.display='none';document.getElementById('topbar').style.display='none';document.getElementById('bnav').style.display='none';show('auth');selRole('admin');buildRoleForm('admin','login');toast('Signed out');}
+function logout(){ROLE=null;U=null;CART=[];document.getElementById('app').style.display='none';document.getElementById('topbar').style.display='none';document.getElementById('bnav').style.display='none';document.getElementById('auth').style.display='block';selRole('admin');buildRoleForm('admin','login');toast('Signed out');}
 function wa(mob,nm){if(!mob)return;window.open('https://wa.me/91'+mob.replace(/\D/g,'')+'?text='+encodeURIComponent('Hello '+nm+', this is TechLink regarding your request.'));}
 function ld(msg){document.getElementById('lov').classList.add('on');document.getElementById('lmsg').textContent=msg||'Loading...';}
 function hl(){document.getElementById('lov').classList.remove('on');}
