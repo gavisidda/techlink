@@ -433,18 +433,19 @@ input,select,textarea{font-family:var(--fb);outline:none;color:var(--tx)}
   <div class="mact"><button class="bc" onclick="cmo('role')">Cancel</button><button class="bs" onclick="doRole()">Update Role</button></div>
 </div></div>
 <script>
-// ── FIREBASE CONFIG — fill in your values, do not share publicly ──────────────
+// ── FIREBASE CONFIG ───────────────────────────────────────────────────────────
 const FB_CONFIG = {
   apiKey:            "AIzaSyB8zQz_aoKMNbp4d0vlocnxETeZzCTKsPM",
   authDomain:        "techlink-demo.firebaseapp.com",
   projectId:         "techlink-demo",
   storageBucket:     "techlink-demo.firebasestorage.app",
   messagingSenderId: "362784885470",
-  appId:             "1:362784885470:web:34cc19eaabf3b5aef1504f"
+  appId:             "1:362784885470:web:34cc19eaabf3b5aef1504f",
+  measurementId:     "G-RBG56DLR23"
 };
 
-// ── ADMIN PIN — change this to your 4-digit PIN ───────────────────────────────
-const ADMIN_PIN = "xxxxxx";
+// ── ADMIN PIN — change to your preferred 4-digit PIN ─────────────────────────
+const ADMIN_PIN = "1234";
 
 let db = null;
 
