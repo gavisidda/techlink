@@ -4,9 +4,9 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
 <title>TechLink – IT Service & Solutions</title>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Noto+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Noto+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -27,6 +27,18 @@ input,select,textarea{font-family:var(--fb);outline:none;color:var(--tx)}
 .slogo svg{width:34px;height:34px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 .dots{display:flex;gap:8px}.dots span{width:8px;height:8px;border-radius:50%;background:var(--ac);animation:dp 1.2s ease-in-out infinite}
 .dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+
+/* notes history timeline */
+.nt{border-left:2px solid var(--bd);padding-left:12px;margin-left:6px}
+.nt-item{position:relative;margin-bottom:12px}
+.nt-item::before{content:'';position:absolute;left:-17px;top:4px;width:8px;height:8px;border-radius:50%;background:var(--ac);border:2px solid var(--sf)}
+.nt-who{font-size:10px;font-weight:700;color:var(--ac);margin-bottom:2px}
+.nt-txt{font-size:12px;color:var(--tx);line-height:1.5}
+.nt-when{font-size:10px;color:var(--mt);margin-top:2px}
+/* assign badge */
+.tech-badge{background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.25);border-radius:9px;padding:8px 11px;font-size:12px;color:var(--or);margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.tech-badge .tb-ic{font-size:16px}
+
 @keyframes dp{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
 /* setup screen */
 #setup{display:none;position:fixed;inset:0;background:var(--bg);z-index:800;overflow-y:auto}
@@ -51,7 +63,6 @@ input,select,textarea{font-family:var(--fb);outline:none;color:var(--tx)}
 .su-btn{width:100%;padding:13px;background:linear-gradient(135deg,#00c9a7,#0099cc);color:#fff;border-radius:10px;font-family:var(--fh);font-size:16px;font-weight:700;letter-spacing:.4px;margin-top:12px;cursor:pointer}
 /* auth */
 #auth{display:none;position:fixed;inset:0;background:var(--bg);overflow-y:auto;z-index:500}
-#auth.on{display:block}
 .au-in{min-height:100%;display:flex;flex-direction:column;align-items:center;padding:12px 16px 32px}
 .au-logo{text-align:center;padding:16px 0 10px}
 .al-ic{width:54px;height:54px;background:linear-gradient(135deg,#00c9a7,#0099ff);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;box-shadow:0 6px 20px rgba(0,201,167,.3)}
@@ -237,7 +248,7 @@ input,select,textarea{font-family:var(--fb);outline:none;color:var(--tx)}
 .ua-t{background:linear-gradient(135deg,var(--or),#e07000)}
 .uc-nm{font-size:13px;font-weight:700}.uc-sb{font-size:11px;color:var(--mt);margin-top:1px}
 .rt{display:inline-block;padding:2px 7px;border-radius:6px;font-size:10px;font-weight:700;margin-left:6px}
-.rta{background:rgba(231,76,60,.15);color:var(--rd)}.rtt{background:rgba(245,166,35,.15);color:var(--or)}.rtc{background:rgba(0,201,167,.15);color:var(--ac)}
+.rta{background:rgba(231,76,60,.15);color:var(--rd)}.rtt{background:rgba(245,166,35,.15);color:var(--or)}.rtc{background:rgba(0,201,167,.15);color:var(--ac)}.rtad{background:rgba(231,76,60,.15);color:var(--rd)}
 /* detail rows */
 .dr{display:flex;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--bd)}
 .dr:last-child{border-bottom:none}
@@ -279,9 +290,8 @@ input,select,textarea{font-family:var(--fb);outline:none;color:var(--tx)}
   </div>
   <div class="au-box">
     <h3 id="auth-ttl">Sign In</h3>
-    <div class="rcards">
-      <div class="rc on" id="rc-admin" onclick="selRole('admin')"><div class="ri">🛡</div><div class="rn">Admin</div></div>
-      <div class="rc" id="rc-technician" onclick="selRole('technician')"><div class="ri">🔧</div><div class="rn">Technician</div></div>
+    <div class="rcards" style="grid-template-columns:1fr 1fr">
+      <div class="rc on" id="rc-technician" onclick="selRole('technician')"><div class="ri">🔧</div><div class="rn">Technician</div></div>
       <div class="rc" id="rc-customer" onclick="selRole('customer')"><div class="ri">🛒</div><div class="rn">Customer</div></div>
     </div>
     <div id="role-form"></div>
@@ -304,6 +314,8 @@ input,select,textarea{font-family:var(--fb);outline:none;color:var(--tx)}
     <div id="s-tickets" class="scr"></div>
     <div id="s-inv" class="scr"></div>
     <div id="s-more" class="scr"></div>
+    <div id="s-svcs" class="scr"></div>
+    <div id="s-company" class="scr"></div>
     <div id="s-ch" class="scr"></div>
     <div id="s-cshop" class="scr"></div>
     <div id="s-ccart" class="scr"></div>
@@ -367,8 +379,11 @@ input,select,textarea{font-family:var(--fb);outline:none;color:var(--tx)}
 </div></div>
 
 <div class="mo" id="mo-ctkt"><div class="ms"><div class="mh"></div><div class="mt2">Raise Service Request</div>
+  <div id="ct-user-info" style="background:var(--cd);border:1px solid var(--bd);border-radius:9px;padding:9px 12px;margin-bottom:12px;display:flex;align-items:center;gap:9px">
+    <div style="font-size:20px">👤</div>
+    <div><div id="ct-user-name" style="font-size:13px;font-weight:700"></div><div id="ct-user-mob" style="font-size:11px;color:var(--mt)"></div></div>
+  </div>
   <div class="fg">
-    <div><label class="fl">Your Name *</label><input class="fi" id="ct-nm" placeholder="Full name"/></div>
     <div><label class="fl">Area / Address *</label>
       <div class="loc"><div class="loc-in"><svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.33 8 13 8 13s8-7.67 8-13a8 8 0 0 0-8-8z"/></svg><input id="ct-addr" placeholder="Type address or use GPS..." oninput="lsrch(this.value,'ct-drop')"/></div><div class="loc-drop" id="ct-drop" style="display:none"></div><button class="loc-gps" onclick="gps('ct-addr','ct-drop')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>Use GPS Location</button></div>
     </div>
@@ -379,6 +394,10 @@ input,select,textarea{font-family:var(--fb);outline:none;color:var(--tx)}
 </div></div>
 
 <div class="mo" id="mo-chk"><div class="ms"><div class="mh"></div><div class="mt2">Confirm Order</div>
+  <div id="co-user-info" style="background:var(--cd);border:1px solid var(--bd);border-radius:9px;padding:9px 12px;margin-bottom:10px;display:flex;align-items:center;gap:9px">
+    <div style="font-size:20px">👤</div>
+    <div><div id="co-user-name" style="font-size:13px;font-weight:700"></div><div id="co-user-mob" style="font-size:11px;color:var(--mt)"></div></div>
+  </div>
   <div id="chk-items" style="margin-bottom:12px"></div>
   <div class="fg">
     <div><label class="fl">Delivery Address *</label>
@@ -416,22 +435,24 @@ input,select,textarea{font-family:var(--fb);outline:none;color:var(--tx)}
 
 <div class="mo" id="mo-role"><div class="ms"><div class="mh"></div><div class="mt2">Change User Role</div>
   <div id="role-info" style="background:var(--cd);border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:14px;font-size:13px"></div>
-  <div class="fg"><div><label class="fl">Assign Role</label><select class="fi fsel" id="role-sel"><option value="customer">Customer (shop &amp; raise tickets)</option><option value="technician">Technician (manage tickets &amp; inventory)</option></select></div></div>
+  <div class="fg"><div><label class="fl">Assign Role</label><select class="fi fsel" id="role-sel"><option value="customer">Customer (shop &amp; raise tickets)</option><option value="technician">Technician (manage tickets &amp; inventory)</option><option value="admin">Admin (full access)</option></select></div></div>
   <div class="mact"><button class="bc" onclick="cmo('role')">Cancel</button><button class="bs" onclick="doRole()">Update Role</button></div>
 </div></div>
 <script>
-// ── FIREBASE CONFIG — fill in your values, do not share publicly ──────────────
+// ── FIREBASE CONFIG ───────────────────────────────────────────────────────────
 const FB_CONFIG = {
   apiKey:            "AIzaSyB8zQz_aoKMNbp4d0vlocnxETeZzCTKsPM",
   authDomain:        "techlink-demo.firebaseapp.com",
   projectId:         "techlink-demo",
   storageBucket:     "techlink-demo.firebasestorage.app",
   messagingSenderId: "362784885470",
-  appId:             "1:362784885470:web:34cc19eaabf3b5aef1504f"
+  appId:             "1:362784885470:web:34cc19eaabf3b5aef1504f",
+  measurementId:     "G-RBG56DLR23"
 };
 
-// ── ADMIN PIN — change this to your 4-digit PIN ───────────────────────────────
-const ADMIN_PIN = "3384";
+// ── ADMIN PIN — change to your preferred 4-digit PIN ─────────────────────────
+const ADMIN_PIN = "1234";
+const ADMIN_MOBILE = "9902022509"; // Default admin mobile — login as Technician tab
 
 let db = null;
 
@@ -476,81 +497,266 @@ const SVCS=[
 ];
 
 // ── INIT ──────────────────────────────────────────
-async function init(){
+function hideSpl(){
+  var s=document.getElementById('splash');
+  if(!s)return;
+  s.style.transition='opacity .3s';
+  s.style.opacity='0';
+  setTimeout(function(){s.style.display='none';},350);
+}
+function showAuth(){
+  var a=document.getElementById('auth');
+  a.style.display='block';
+  selRole('technician');
+}
+function show(id){var el=document.getElementById(id);if(el)el.classList.add('on');}
+function hide(id){var el=document.getElementById(id);if(el)el.classList.remove('on');}
+
+function init(){
+  // Initialise Firebase — errors shown on splash
   try{
     firebase.initializeApp(FB_CONFIG);
     db=firebase.firestore();
     db.settings({ignoreUndefinedProperties:true});
   }catch(e){
-    console.error('Firebase init failed:',e);
-    document.getElementById('splash').innerHTML='<div style="padding:30px;text-align:center;color:#e74c3c;font-family:sans-serif"><div style="font-size:2rem;margin-bottom:12px">⚠️</div><div style="font-size:14px;font-weight:700">Firebase Config Error</div><div style="font-size:12px;color:#7a8aa8;margin-top:8px">Check your FB_CONFIG values in the script.<br>'+e.message+'</div></div>';
+    console.error('Firebase error:',e);
+    var s=document.getElementById('splash');
+    s.style.display='flex';s.style.opacity='1';
+    s.innerHTML='<div style="padding:28px;text-align:center"><div style="font-size:2.5rem">⚠️</div>'+
+      '<div style="font-family:Rajdhani,sans-serif;font-size:18px;font-weight:700;color:#e74c3c;margin-top:10px">Firebase Error</div>'+
+      '<div style="font-size:12px;color:#7a8aa8;margin-top:8px;line-height:1.6">'+e.message+'</div></div>';
     return;
   }
-  ld('Loading data...');
-  try{
-    const[p,t,o,u]=await Promise.all([fall('products'),fall('tickets'),fall('orders'),fall('users')]);
-    D.products=p;D.tickets=t;D.orders=o;D.users=u;
-  }catch(e){console.warn('Data load:',e);}
-  hl();hideSpl();show('auth');
-  selRole('admin');buildRoleForm('admin','login');
-}
-function hideSpl(){const s=document.getElementById('splash');s.style.opacity='0';setTimeout(()=>s.style.display='none',400);}
-function show(id){document.getElementById(id).classList.add('on');}
-function hide(id){document.getElementById(id).classList.remove('on');}
 
-// ── AUTH ──────────────────────────────────────────
-let sRole='admin',aMode='login',pBuf='';
-function selRole(r){sRole=r;['admin','technician','customer'].forEach(x=>document.getElementById('rc-'+x)?.classList.toggle('on',x===r));aMode='login';buildRoleForm(r,'login');}
-function swMode(m){aMode=m;buildRoleForm(sRole,m);}
-function buildRoleForm(role,mode){
+  // Hide splash after 1s then show auth — same pattern as working index.html
+  setTimeout(function(){
+    document.getElementById('splash').style.opacity='0';
+    setTimeout(function(){
+      document.getElementById('splash').style.display='none';
+      showAuth();
+      // Load all data in background
+      Promise.all([fall('products'),fall('tickets'),fall('orders'),fall('users')])
+        .then(function(res){
+          D.products=res[0];D.tickets=res[1];D.orders=res[2];D.users=res[3];
+          loadServices();
+          loadCompany();
+        }).catch(function(e){console.warn('Data load:',e);});
+    },400);
+  },1000);
+}
+
+// ── AUTH — smart single-field flow ────────────────
+// Steps: mobile → (existing) enter-pin
+//                (new)      name → set-pin → confirm-pin
+let sRole='technician',pBuf='';
+let _step='mobile',_mob='',_uname='',_newPin='';
+
+function selRole(r){
+  sRole=r;
+  ['technician','customer'].forEach(function(x){
+    document.getElementById('rc-'+x)?.classList.toggle('on',x===r);
+  });
+  _step='mobile';_mob='';_uname='';_newPin='';pBuf='';
+  buildAuthStep();
+}
+
+function buildAuthStep(){
+  var el=document.getElementById('role-form');
+  var tt=document.getElementById('auth-ttl');
   pBuf='';
-  const el=document.getElementById('role-form');
-  document.getElementById('auth-ttl').textContent=role==='admin'?'Admin Sign In':mode==='login'?(role==='technician'?'Technician Sign In':'Customer Sign In'):(role==='technician'?'Register Technician':'Create Account');
-  let h='';
-  if(role!=='admin')h='<div class="atabs"><div class="atab '+(mode==='login'?'on':'')+'" onclick="swMode(\'login\')">Sign In</div><div class="atab '+(mode==='register'?'on':'')+'" onclick="swMode(\'register\')">Register</div></div>'+(mode==='register'?'<div><label class="fl">Full Name *</label><input class="fi" id="reg-nm" placeholder="Your full name" style="margin-bottom:10px"/></div>':'')+'<div class="mf"><span class="cc">+91</span><input type="tel" id="auth-mob" maxlength="10" placeholder="10-digit mobile" inputmode="numeric"/></div>';
-  h+='<div style="font-size:11px;color:var(--mt);text-align:center;margin-bottom:4px">'+(role==='admin'?'Enter Admin PIN':mode==='register'?'Set 4-digit PIN':'Enter your PIN')+'</div>';
-  h+='<div class="pin-row" id="pin-row">'+Array(4).fill('<div class="pd"></div>').join('')+'</div>';
-  h+='<div class="pin-grid">'+[1,2,3,4,5,6,7,8,9,'','0','del'].map(k=>'<button class="pk'+(k==='del'?' del':k===''?' mt':'')+'"'+(k===''?'':' onclick="pp(\''+k+'\')"')+'>'+( k==='del'?'&#9003;':String(k))+'</button>').join('')+'</div>';
-  if(role!=='admin')h+='<button class="lnk" style="margin-top:8px" onclick="swMode(\''+(mode==='login'?'register':'login')+'\')">'+(mode==='login'?'New here? Register':'Already registered? Sign in')+'</button>';
-  el.innerHTML=h;
-}
-function pp(k){
-  if(k==='del')pBuf=pBuf.slice(0,-1);else if(pBuf.length<4)pBuf+=k;
-  const r=document.getElementById('pin-row');if(r){const ds=r.querySelectorAll('.pd');ds.forEach((d,i)=>d.classList.toggle('on',i<pBuf.length));}
-  if(pBuf.length===4)setTimeout(tryLogin,100);
-}
-async function tryLogin(){
-  const pin=pBuf;
-  if(sRole==='admin'){if(pin===ADMIN_PIN)doLogin('admin',{id:'admin',name:'Admin',role:'admin'});else{shk();toast('Wrong Admin PIN ❌');}return;}
-  const mob=(document.getElementById('auth-mob')?.value||'').trim();
-  if(mob.length!==10){shk();toast('Enter valid 10-digit mobile');return;}
-  if(aMode==='register'){
-    const nm=(document.getElementById('reg-nm')?.value||'').trim();
-    if(!nm){toast('Enter your full name');pBuf='';clrPins();return;}
-    if(D.users.find(u=>u.mobile===mob)){toast('Mobile already registered — sign in');pBuf='';clrPins();swMode('login');return;}
-    ld('Creating account...');
-    try{const nu={name:nm,mobile:mob,pin,role:sRole==='technician'?'technician':'customer',active:true,joinedOn:td()};const id=await fadd('users',nu);nu.id=id;hl();doLogin(nu.role,nu);}
-    catch(e){hl();toast('Error: '+e.message);}return;
+
+  var label=sRole==='technician'?'Technician':'Customer';
+
+  // Step 1 — enter mobile
+  if(_step==='mobile'){
+    tt.textContent=label+' Login';
+    el.innerHTML=
+      '<div style="font-size:12px;color:var(--mt);margin-bottom:8px">Enter your mobile number to sign in or register</div>'+
+      '<div class="mf"><span class="cc">+91</span>'+
+      '<input type="tel" id="auth-mob" maxlength="10" placeholder="10-digit mobile" inputmode="numeric"'+
+      ' onkeydown="if(event.key===\'Enter\')checkMob()"/></div>'+
+      '<button class="bp" onclick="checkMob()">Continue →</button>';
+    setTimeout(function(){document.getElementById('auth-mob')?.focus();},80);
+    return;
   }
-  ld('Signing in...');
-  try{D.users=await fall('users');}catch{}hl();
-  const u=D.users.find(x=>x.mobile===mob&&x.pin===pin);
-  if(!u){shk();toast('Wrong mobile or PIN ❌');return;}
-  if(u.active===false){shk();toast('Account disabled. Contact admin.');return;}
-  if(sRole==='technician'&&u.role!=='technician'){shk();toast('Not a technician account');return;}
-  if(sRole==='customer'&&u.role==='technician'){shk();toast('Use Technician tab');return;}
-  doLogin(u.role,u);
+
+  // Step 2a — existing user: enter PIN
+  if(_step==='enter-pin'){
+    tt.textContent='Welcome back!';
+    el.innerHTML=
+      '<div style="background:var(--cd);border:1px solid var(--bd);border-radius:9px;padding:9px 12px;margin-bottom:12px;display:flex;align-items:center;gap:9px">'+
+      '<div style="font-size:18px">📱</div>'+
+      '<div><div style="font-size:13px;font-weight:700">+91 '+_mob+'</div>'+
+      '<div style="font-size:11px;color:var(--mt)">Enter your PIN to sign in</div></div>'+
+      '<button onclick="_step=\'mobile\';buildAuthStep()" style="margin-left:auto;font-size:11px;color:var(--ac2);background:none;border:none;cursor:pointer">Change</button></div>'+
+      _pinRow()+_pinGrid();
+    return;
+  }
+
+  // Step 2b — new user: enter name
+  if(_step==='name'){
+    tt.textContent='Create Account';
+    el.innerHTML=
+      '<div style="background:var(--cd);border:1px solid var(--bd);border-radius:9px;padding:9px 12px;margin-bottom:12px;font-size:12px;color:var(--mt)">'+
+      '📱 +91 '+_mob+' &nbsp;·&nbsp; New '+label+' account</div>'+
+      '<div><label class="fl">Your Full Name *</label>'+
+      '<input class="fi" id="reg-nm" placeholder="Enter your full name" style="margin-bottom:10px"'+
+      ' onkeydown="if(event.key===\'Enter\')submitName()"/></div>'+
+      '<button class="bp" onclick="submitName()">Continue →</button>'+
+      '<button onclick="_step=\'mobile\';buildAuthStep()" class="lnk" style="margin-top:8px">← Change number</button>';
+    setTimeout(function(){document.getElementById('reg-nm')?.focus();},80);
+    return;
+  }
+
+  // Step 3 — new user: set PIN
+  if(_step==='set-pin'){
+    tt.textContent='Set Your PIN';
+    el.innerHTML=
+      '<div style="background:var(--cd);border:1px solid var(--bd);border-radius:9px;padding:9px 12px;margin-bottom:12px">'+
+      '<div style="font-size:13px;font-weight:700">'+_uname+'</div>'+
+      '<div style="font-size:11px;color:var(--mt)">+91 '+_mob+'</div></div>'+
+      '<div style="font-size:11px;color:var(--mt);text-align:center;margin-bottom:4px">Choose a 4-digit PIN</div>'+
+      _pinRow()+_pinGrid();
+    return;
+  }
+
+  // Step 4 — new user: confirm PIN
+  if(_step==='confirm-pin'){
+    tt.textContent='Confirm Your PIN';
+    el.innerHTML=
+      '<div style="background:rgba(0,201,167,.08);border:1px solid rgba(0,201,167,.3);border-radius:9px;padding:9px 12px;margin-bottom:12px;font-size:12px;color:var(--ac)">'+
+      '✅ Good — now enter the same PIN again to confirm</div>'+
+      '<div style="font-size:11px;color:var(--mt);text-align:center;margin-bottom:4px">Confirm PIN</div>'+
+      _pinRow()+_pinGrid();
+    return;
+  }
 }
-function clrPins(){const r=document.getElementById('pin-row');if(r)r.querySelectorAll('.pd').forEach(d=>d.classList.remove('on'));}
-function shk(){const r=document.getElementById('pin-row');if(r){r.style.animation='shake .3s ease';setTimeout(()=>r.style.animation='',350);}pBuf='';clrPins();}
+
+function _pinRow(){
+  return '<div class="pin-row" id="pin-row"><div class="pd"></div><div class="pd"></div><div class="pd"></div><div class="pd"></div></div>';
+}
+function _pinGrid(){
+  return '<div class="pin-grid">'+[1,2,3,4,5,6,7,8,9,'','0','del'].map(function(k){
+    var cl='pk'+(k==='del'?' del':k===''?' mt':'');
+    var fn=k===''?'':' onclick="pp(\''+k+'\')"';
+    return '<button class="'+cl+'"'+fn+'>'+(k==='del'?'&#9003;':String(k))+'</button>';
+  }).join('')+'</div>';
+}
+
+async function checkMob(){
+  var mob=(document.getElementById('auth-mob')?.value||'').trim();
+  if(mob.length!==10){toast('Enter a valid 10-digit mobile number');return;}
+  _mob=mob;
+  ld('Checking...');
+  if(!D.users.length){try{D.users=await fall('users');}catch(e){}}
+  hl();
+  var found=D.users.find(function(u){return u.mobile===mob;});
+  if(found){
+    // Admin mobile bypasses role checks
+    if(mob!==ADMIN_MOBILE){
+      if(sRole==='technician'&&found.role!=='technician'){
+        toast('Registered as Customer — use Customer login');return;
+      }
+      if(sRole==='customer'&&found.role==='technician'){
+        toast('Registered as Technician — use Technician login');return;
+      }
+    }
+    if(found.active===false){toast('Account disabled. Contact admin.');return;}
+    _step='enter-pin';
+  } else {
+    // Admin mobile: auto-create account with default PIN 1234
+    if(mob===ADMIN_MOBILE){
+      ld('Setting up admin account...');
+      try{
+        var au={name:'Admin',mobile:ADMIN_MOBILE,pin:'1234',role:'admin',active:true,joinedOn:td()};
+        var aid=await fadd('users',au);au.id=aid;
+        hl();
+        toast('Admin account created. Default PIN: 1234');
+        _step='enter-pin';
+        buildAuthStep();
+      }catch(e){hl();toast('Error: '+e.message);}
+      return;
+    }
+    _step='name';
+  }
+  buildAuthStep();
+}
+
+function submitName(){
+  var nm=(document.getElementById('reg-nm')?.value||'').trim();
+  if(!nm){toast('Enter your full name');return;}
+  _uname=nm;_step='set-pin';buildAuthStep();
+}
+
+function pp(k){
+  if(k==='del')pBuf=pBuf.slice(0,-1);
+  else if(pBuf.length<4)pBuf+=k;
+  var r=document.getElementById('pin-row');
+  if(r){var ds=r.querySelectorAll('.pd');ds.forEach(function(d,i){d.classList.toggle('on',i<pBuf.length);});}
+  if(pBuf.length===4)setTimeout(handlePin,100);
+}
+
+async function handlePin(){
+  var pin=pBuf;
+
+  // Existing user — verify PIN
+  if(_step==='enter-pin'){
+    var u=D.users.find(function(x){return x.mobile===_mob&&x.pin===pin;});
+    if(!u){shk();toast('Wrong PIN ❌ Try again');return;}
+    // Admin mobile always gets admin role regardless of stored role
+    var effectiveRole=(_mob===ADMIN_MOBILE)?'admin':u.role;
+    doLogin(effectiveRole,Object.assign({},u,{role:effectiveRole}));
+    return;
+  }
+
+  // New user — save PIN, go to confirm
+  if(_step==='set-pin'){
+    _newPin=pin;_step='confirm-pin';buildAuthStep();
+    return;
+  }
+
+  // New user — confirm PIN, create account
+  if(_step==='confirm-pin'){
+    if(pin!==_newPin){
+      shk();toast('PINs do not match — try again');
+      _step='set-pin';_newPin='';buildAuthStep();
+      return;
+    }
+    ld('Creating account...');
+    try{
+      var nu={name:_uname,mobile:_mob,pin:_newPin,
+        role:sRole==='technician'?'technician':'customer',
+        active:true,joinedOn:td()};
+      var uid=await fadd('users',nu);
+      nu.id=uid;hl();
+      toast('Account created! Welcome '+_uname+' 🎉');
+      doLogin(nu.role,nu);
+    }catch(e){hl();toast('Error: '+e.message);}
+    return;
+  }
+}
+
+function clrPins(){var r=document.getElementById('pin-row');if(r)r.querySelectorAll('.pd').forEach(function(d){d.classList.remove('on');});}
+function shk(){var r=document.getElementById('pin-row');if(r){r.style.animation='shake .3s ease';setTimeout(function(){r.style.animation='';},350);}pBuf='';clrPins();}
 function doLogin(role,user){
   ROLE=role;U=user;CART=[];
-  hide('auth');
+  document.getElementById('auth').style.display='none';
   document.getElementById('app').style.display='flex';
   document.getElementById('topbar').style.display='block';
   document.getElementById('bnav').style.display='block';
-  buildNav();goS(role==='customer'?'ch':role==='technician'?'tickets':'home');
+  buildNav();
+  goS(role==='customer'?'ch':role==='technician'?'tickets':'home');
   toast('Welcome, '+user.name+' 👋');
+  // Refresh all data in background after login
+  Promise.all([fall('products'),fall('tickets'),fall('orders'),fall('users')])
+    .then(function(res){
+      D.products=res[0];D.tickets=res[1];D.orders=res[2];D.users=res[3];
+      loadServices();
+      loadCompany();
+      // Re-render current screen with fresh data
+      const cur=document.querySelector('.scr.on');
+      if(cur){const id=cur.id.replace('s-','');if(SCRFN[id])SCRFN[id]();}
+    }).catch(function(e){console.warn('Post-login data refresh:',e);});
 }
 
 // ── NAV ───────────────────────────────────────────
@@ -559,8 +765,8 @@ const NAVS={
   technician:[{id:'tickets',l:'Tickets',p:'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6'},{id:'inv',l:'Inventory',p:'M3 3h18v4H3z M3 10h18v4H3z M3 17h18v4H3z'},{id:'more',l:'More',p:'M12 5m-1 0a1 1 0 102 0 1 1 0 10-2 0 M12 12m-1 0a1 1 0 102 0 1 1 0 10-2 0 M12 19m-1 0a1 1 0 102 0 1 1 0 10-2 0'}],
   customer:[{id:'ch',l:'Home',p:'M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z'},{id:'cshop',l:'Shop',p:'M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z'},{id:'ccart',l:'Cart',p:'M9 20a1 1 0 102 0 1 1 0 00-2 0M20 20a1 1 0 102 0 1 1 0 00-2 0M1 1h4l2.68 13.39a2 2 0 001.94 1.61h9.72a2 2 0 001.95-1.55L23 8H6'},{id:'cordrs',l:'Orders',p:'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2 M9 12h6 M9 16h4'},{id:'ctix',l:'Service',p:'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6'},{id:'cprof',l:'Me',p:'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2 M12 11a4 4 0 100-8 4 4 0 000 8z'}]
 };
-const TTL={home:'Dashboard',prods:'Products',orders:'Orders',tickets:'Service Tickets',inv:'Inventory',more:'More',ch:'TechLink',cshop:'Shop',ccart:'My Cart',cordrs:'My Orders',ctix:'Service',cprof:'My Account'};
-const SCRFN={home:rHome,prods:rProds,orders:rOrders,tickets:rTickets,inv:rInv,more:rMore,ch:rCh,cshop:rCshop,ccart:rCcart,cordrs:rCordrs,ctix:rCtix,cprof:rCprof};
+const TTL={home:'Dashboard',prods:'Products',orders:'Orders',tickets:'Service Tickets',inv:'Inventory',more:'More',svcs:'Manage Services',company:'Company Details',ch:'TechLink',cshop:'Shop',ccart:'My Cart',cordrs:'My Orders',ctix:'Service',cprof:'My Account'};
+const SCRFN={home:rHome,prods:rProds,orders:rOrders,tickets:rTickets,inv:rInv,more:rMore,svcs:rSvcs,company:rCompany,ch:rCh,cshop:rCshop,ccart:rCcart,cordrs:rCordrs,ctix:rCtix,cprof:rCprof};
 function buildNav(){
   document.getElementById('nw').innerHTML=(NAVS[ROLE]||NAVS.customer).map(n=>'<div class="ni" id="ni-'+n.id+'" onclick="goS(\''+n.id+'\')"><svg viewBox="0 0 24 24"><path d="'+n.p+'" stroke-linecap="round" stroke-linejoin="round"/></svg><span>'+n.l+'</span></div>').join('');
   uCart();
@@ -666,11 +872,19 @@ function openVO(id){
   .map(([l,v])=>'<div class="dr"><span class="dr-l">'+l+'</span><span class="dr-v">'+v+'</span></div>').join('')+
   '<div style="background:var(--sf);border-radius:7px;padding:8px 10px;margin-top:8px;font-size:11px;color:var(--mt);line-height:1.8;white-space:pre">'+(o.items||[]).map(i=>i.name+' × '+i.qty+' = ₹'+f(i.qty*(i.price||0))).join('\n')+'</div>'+
   (o.adminNote?'<div style="background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.2);border-radius:7px;padding:7px 10px;margin-top:8px;font-size:11px;color:var(--or)">Admin: '+o.adminNote+'</div>':'');
-  sv2('vord-st',o.status);sv('vord-note',o.adminNote||'');omo('vord');
+  sv2('vord-st',o.status);sv('vord-note','');
+  document.getElementById('vord-upd').insertAdjacentHTML('beforebegin',
+    '<button class="bg" style="width:100%;margin-bottom:10px;font-size:12px;padding:8px" onclick="openNotes(\'order\',\''+o.id+'\')">📋 View Notes History</button>'
+  );
+  omo('vord');
 }
 async function updOrd(){
   if(BUSY)return;BUSY=true;ld('Updating...');
-  try{await fset('orders',vOid,{status:sv2get('vord-st'),adminNote:gv('vord-note')});cmo('vord');rOrders();rHome();toast('✅ Order updated');}catch{}hl();BUSY=false;
+  const o=D.orders.find(x=>x.id===vOid);
+  const hist=(o&&o.notesHistory)||[];
+  const note=gv('vord-note');
+  if(note)hist.push({by:U.name,role:ROLE,text:note,at:new Date().toLocaleString('en-IN')});
+  try{await fset('orders',vOid,{status:sv2get('vord-st'),adminNote:note,notesHistory:hist});cmo('vord');rOrders();rHome();toast('✅ Order updated');}catch(e){toast(e.message);}hl();BUSY=false;
 }
 
 // ── TICKETS ───────────────────────────────────────
@@ -695,18 +909,26 @@ function tkCard(t,mini){
 }
 function openVT(id){
   const t=D.tickets.find(x=>x.id===id);if(!t)return;vTid=id;
+  const techU=t.assignedTechId?D.users.find(x=>x.id===t.assignedTechId):null;
   document.getElementById('vtkt-body').innerHTML=
   '<div style="margin-bottom:10px"><span class="bdg '+bc(t.status)+'">'+t.status+'</span> <span style="font-family:var(--fh);color:var(--ac);font-size:12px;font-weight:700;margin-left:5px">'+(t.refNum||'')+'</span></div>'+
-  [['Customer',t.name],['Mobile',t.mobile],['Address',t.addr||'—'],['Service',t.service],['Priority',t.priority||'Normal'],['Date',t.date],['Description',t.desc||'—'],['Notes',t.notes||'—']]
-  .map(([l,v])=>'<div class="dr"><span class="dr-l">'+l+'</span><span class="dr-v">'+v+'</span></div>').join('');
-  sv2('vtkt-st',t.status);sv('vtkt-notes',t.notes||'');
+  [['Customer',t.name],['Mobile',t.mobile],['Address',t.addr||'—'],['Service',t.service],['Priority',t.priority||'Normal'],['Date',t.date],['Description',t.desc||'—']]
+  .map(([l,v])=>'<div class="dr"><span class="dr-l">'+l+'</span><span class="dr-v">'+v+'</span></div>').join('')+
+  (techU?'<div class="tech-badge"><span class="tb-ic">🔧</span><div><div style="font-weight:700;font-size:12px">Assigned: '+techU.name+'</div><div style="font-size:11px;color:var(--mt)">+91 '+techU.mobile+'</div></div></div>':'')+
+  '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">'+
+  (ROLE==='admin'?'<button class="ba" style="font-size:11px;padding:6px 11px" onclick="openAssign(\''+t.id+'\')">🔧 Assign Tech</button>':'')+
+  '<button class="bg" style="font-size:11px;padding:6px 11px" onclick="openNotes(\'ticket\',\''+t.id+'\')">📋 Notes History</button></div>';
+  sv2('vtkt-st',t.status);sv('vtkt-notes','');
   document.getElementById('vtkt-upd').style.display=['done','cancel'].includes(t.status)?'none':'block';omo('vtkt');
 }
 async function updTkt(){
-  if(BUSY)return;const st=sv2get('vtkt-st'),notes=gv('vtkt-notes');
-  if(st==='done'&&!notes){toast('Add work notes to close');return;}
+  if(BUSY)return;const st=sv2get('vtkt-st'),note=gv('vtkt-notes');
+  if(st==='done'&&!note){toast('Add work notes to close');return;}
   BUSY=true;ld('Updating...');
-  try{await fset('tickets',vTid,{status:st,notes});cmo('vtkt');rTickets();rHome();toast('✅ Ticket → '+st);}catch{}hl();BUSY=false;
+  const t=D.tickets.find(x=>x.id===vTid);
+  const hist=(t&&t.notesHistory)||[];
+  if(note)hist.push({by:U.name,role:ROLE,text:note,at:new Date().toLocaleString('en-IN')});
+  try{await fset('tickets',vTid,{status:st,notes:note,notesHistory:hist});cmo('vtkt');rTickets();rHome();toast('✅ Ticket → '+st);}catch(e){toast(e.message);}hl();BUSY=false;
 }
 async function saveTkt(){
   if(BUSY)return;const nm=gv('tk-nm'),mob=gv('tk-mob');if(!nm||!mob){toast('Enter name and mobile');return;}
@@ -748,7 +970,7 @@ function rMore(){
     (D.users.length?D.users.map(u=>{
       const at=u.role==='technician'?'ua-t':'';
       return'<div class="uc"><div class="uc-hd"><div class="ua '+at+'">'+u.name.charAt(0).toUpperCase()+'</div>'+
-      '<div style="flex:1"><div class="uc-nm">'+u.name+'<span class="rt '+(u.role==='technician'?'rtt':'rtc')+'">'+u.role+'</span></div>'+
+      '<div style="flex:1"><div class="uc-nm">'+u.name+'<span class="rt '+(u.role==='admin'?'rta':u.role==='technician'?'rtt':'rtc')+'">'+u.role+'</span></div>'+
       '<div class="uc-sb">+91 '+u.mobile+' · '+(u.joinedOn||'—')+'</div></div>'+
       '<span class="sb '+(u.active===false?'so':'si')+'" style="font-size:9px">'+(u.active===false?'Disabled':'Active')+'</span></div>'+
       '<div class="rca-acts">'+
@@ -764,14 +986,16 @@ function rMore(){
   '<div><div class="pn">'+U.name+'</div><div class="pr">'+(ROLE==='admin'?'Administrator':'Technician')+'</div></div></div>'+
   '<div class="ml">'+
   (ROLE==='admin'?'<div class="mi" onclick="goS(\'inv\')"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="5" rx="1"/><rect x="2" y="10" width="20" height="5" rx="1"/><rect x="2" y="17" width="20" height="5" rx="1"/></svg>Inventory<svg class="arr" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>'+
-  '<div class="mi" onclick="doExp()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV<svg class="arr" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>':
+  '<div class="mi" onclick="omo(\'csv\')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Import CSV Products<svg class="arr" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>'+
+  '<div class="mi" onclick="doExp()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV<svg class="arr" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>'+
+  '<div class="mi" onclick="goS(\'svcs\')"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>Manage Services<svg class="arr" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>':
   '<div class="mi" onclick="goS(\'inv\')"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="5" rx="1"/></svg>Inventory<svg class="arr" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>')+
   '<div class="mi dng" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</div></div>'+
   uhtml+'<div style="height:8px"></div>';
 }
 function openChR(uid){
   const u=D.users.find(x=>x.id===uid);if(!u)return;rlUid=uid;
-  document.getElementById('role-info').innerHTML='<b>'+u.name+'</b><div style="font-size:11px;color:var(--mt);margin-top:3px">+91 '+u.mobile+' · Current: <span class="rt '+(u.role==='technician'?'rtt':'rtc')+'">'+u.role+'</span></div>';
+  document.getElementById('role-info').innerHTML='<b>'+u.name+'</b><div style="font-size:11px;color:var(--mt);margin-top:3px">+91 '+u.mobile+' · Current: <span class="rt '+(u.role==='admin'?'rta':u.role==='technician'?'rtt':'rtc')+'">'+u.role+'</span></div>';
   sv2('role-sel',u.role);omo('role');
 }
 async function doRole(){
@@ -928,14 +1152,25 @@ function rCtix(){
   '<div class="st" style="margin-bottom:8px">Available Services</div>'+
   SVCS.map(s=>'<div class="svi" onclick="omo(\'ctkt\')"><div class="svi-i">'+s.i+'</div><div><div class="svi-n">'+s.n+'</div><div class="svi-d">'+s.d+'</div></div><div class="svi-p">'+s.p+'</div></div>').join('')+
   '<div class="st" style="margin:12px 0 8px">My Requests ('+mine.length+')</div>'+
-  (mine.length?mine.map(t=>'<div class="rca"><div class="rca-hd"><div><div class="rca-num">'+(t.refNum||'')+'</div><div class="rca-name">'+t.service+'</div><div class="rca-sub">'+t.date+'</div></div><span class="bdg '+bc(t.status)+'">'+t.status+'</span></div>'+(t.addr?'<div class="rca-meta"><span>📍 '+t.addr+'</span></div>':'')+( t.notes?'<div class="rca-note">📋 '+t.notes+'</div>':'')+'</div>').join(''):'<div class="empty" style="padding:14px"><div class="ei">🎫</div><p>No requests yet</p></div>')+
+  (mine.length?mine.map(function(t){
+    const techU=t.assignedTechId?D.users.find(x=>x.id===t.assignedTechId):null;
+    return'<div class="rca"><div class="rca-hd"><div><div class="rca-num">'+(t.refNum||'')+'</div><div class="rca-name">'+t.service+'</div><div class="rca-sub">'+t.date+'</div></div><span class="bdg '+bc(t.status)+'">'+t.status+'</span></div>'+
+    (t.addr?'<div class="rca-meta"><span>📍 '+t.addr+'</span></div>':'')+
+    (techU?'<div class="tech-badge"><span class="tb-ic">🔧</span><div><div style="font-weight:700;font-size:12px">Technician: '+techU.name+'</div><div style="font-size:11px;color:var(--mt)">📞 +91 '+techU.mobile+'</div></div><button class="ra rawa" style="margin-left:auto" onclick="wa(\''+techU.mobile+'\',\''+techU.name+'\')">💬</button></div>':'')+
+    (t.notes?'<div class="rca-note">📋 '+t.notes+'</div>':'')+
+    '</div>';
+  }).join(''):'<div class="empty" style="padding:14px"><div class="ei">🎫</div><p>No requests yet</p></div>')+
   '<div style="height:8px"></div>';
 }
 async function cSubTkt(){
-  if(BUSY)return;const nm=gv('ct-nm');if(!nm){toast('Enter your name');return;}
+  if(BUSY)return;
+  const addr=gv('ct-addr');if(!addr){toast('Enter your address / area');return;}
   BUSY=true;ld('Submitting...');
   const num='TK-'+String(D.tickets.length+1).padStart(3,'0');
-  try{await fadd('tickets',{refNum:num,name:nm,mobile:U.mobile,addr:gv('ct-addr'),service:sv2get('ct-svc'),priority:'Normal',date:td(),desc:gv('ct-desc'),status:'pending',notes:''});cmo('ctkt');rCtix();rCh();toast('✅ Request: '+num);}catch(e){toast(e.message);}hl();BUSY=false;
+  try{
+    await fadd('tickets',{refNum:num,name:U.name,mobile:U.mobile,addr,service:sv2get('ct-svc'),priority:'Normal',date:td(),desc:gv('ct-desc'),status:'pending',notes:''});
+    cmo('ctkt');rCtix();rCh();toast('✅ Request submitted: '+num);
+  }catch(e){toast(e.message);}hl();BUSY=false;
 }
 
 // ── CUSTOMER PROFILE ──────────────────────────────
@@ -984,10 +1219,25 @@ function gps(iid,did){
 document.addEventListener('click',function(e){if(!e.target.closest('.loc'))document.querySelectorAll('.loc-drop').forEach(function(d){d.style.display='none';});});
 
 // ── UTILS ─────────────────────────────────────────
-function omo(id){const el=document.getElementById('mo-'+id);if(el)el.classList.add('on');if(id==='tkt'){const d=document.getElementById('tk-dt');if(d)d.valueAsDate=new Date();}}
+function omo(id){
+  const el=document.getElementById('mo-'+id);if(el)el.classList.add('on');
+  if(id==='tkt'){const d=document.getElementById('tk-dt');if(d)d.valueAsDate=new Date();}
+  // Auto-fill logged-in user info
+  if(id==='ctkt'&&U){
+    const nm=document.getElementById('ct-user-name');if(nm)nm.textContent=U.name;
+    const mob=document.getElementById('ct-user-mob');if(mob)mob.textContent='+91 '+U.mobile;
+    const addr=document.getElementById('ct-addr');if(addr)addr.value='';
+    const desc=document.getElementById('ct-desc');if(desc)desc.value='';
+    const drop=document.getElementById('ct-drop');if(drop)drop.style.display='none';
+  }
+  if(id==='chk'&&U){
+    const nm=document.getElementById('co-user-name');if(nm)nm.textContent=U.name;
+    const mob=document.getElementById('co-user-mob');if(mob)mob.textContent='+91 '+U.mobile;
+  }
+}
 function cmo(id){const el=document.getElementById('mo-'+id);if(el)el.classList.remove('on');}
 document.addEventListener('click',function(e){if(e.target.classList.contains('mo'))e.target.classList.remove('on');});
-function logout(){ROLE=null;U=null;CART=[];document.getElementById('app').style.display='none';document.getElementById('topbar').style.display='none';document.getElementById('bnav').style.display='none';show('auth');selRole('admin');buildRoleForm('admin','login');toast('Signed out');}
+function logout(){ROLE=null;U=null;CART=[];document.getElementById('app').style.display='none';document.getElementById('topbar').style.display='none';document.getElementById('bnav').style.display='none';document.getElementById('auth').style.display='block';selRole('technician');toast('Signed out');}
 function wa(mob,nm){if(!mob)return;window.open('https://wa.me/91'+mob.replace(/\D/g,'')+'?text='+encodeURIComponent('Hello '+nm+', this is TechLink regarding your request.'));}
 function ld(msg){document.getElementById('lov').classList.add('on');document.getElementById('lmsg').textContent=msg||'Loading...';}
 function hl(){document.getElementById('lov').classList.remove('on');}
@@ -1007,7 +1257,307 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 function ci(c){return({'UPS - Home':'⚡','UPS - Office':'🖥','UPS - Industrial':'🏭','Battery - New':'🔋','Battery - Used':'♻️','Laptop':'💻','Printer':'🖨️','CCTV':'📷','Networking':'📡','Accessories':'🔌'})[c]||'📦';}
 function bc(s){return s==='done'||s==='delivered'?'bdo':s==='cancel'||s==='cancelled'?'bca':s==='in-progress'||s==='dispatched'?'bip':s==='assigned'||s==='confirmed'?'bas':'bpe';}
 
+
+// ── SERVICES MANAGEMENT ───────────────────────────
+function rSvcs(){
+  document.getElementById('s-svcs').innerHTML=
+  '<div style="display:flex;gap:7px;margin-bottom:10px">'+
+  '<button class="ba" onclick="openAddSvc()">+ Add Service</button>'+
+  '<button class="bg" style="margin-left:auto" onclick="goS(\'more\')">← Back</button></div>'+
+  '<div id="svc-list"></div><div style="height:8px"></div>';
+  rSvcList();
+}
+function rSvcList(){
+  const el=document.getElementById('svc-list');if(!el)return;
+  el.innerHTML=SVCS.map(function(s,i){
+    return'<div class="lc"><div class="lc-i" style="background:rgba(0,201,167,.1);font-size:22px">'+s.i+'</div>'+
+    '<div class="lc-inf"><h4>'+s.n+'</h4><p>'+s.d+'</p></div>'+
+    '<div class="lc-r"><div style="font-size:12px;font-weight:700;color:var(--or);margin-bottom:6px">'+s.p+'</div>'+
+    '<div style="display:flex;gap:5px">'+
+    '<button class="ra rav" style="padding:3px 8px;font-size:10px" onclick="openEditSvc('+i+')">✏</button>'+
+    '<button class="ra rano" style="padding:3px 8px;font-size:10px" onclick="delSvc('+i+')">🗑</button>'+
+    '</div></div></div>';
+  }).join('')||'<div class="empty"><div class="ei">🔧</div><p>No services yet</p></div>';
+}
+let eSvcIdx=-1;
+function openAddSvc(){eSvcIdx=-1;document.getElementById('svc-ttl').textContent='Add Service';sv('sv-ic','');sv('sv-nm','');sv('sv-ds','');sv('sv-pr','');omo('svc');}
+function openEditSvc(i){eSvcIdx=i;const s=SVCS[i];document.getElementById('svc-ttl').textContent='Edit Service';sv('sv-ic',s.i);sv('sv-nm',s.n);sv('sv-ds',s.d);sv('sv-pr',s.p);omo('svc');}
+async function saveSvc(){
+  const nm=gv('sv-nm');if(!nm){toast('Enter service name');return;}
+  const svc={i:gv('sv-ic')||'🔧',n:nm,d:gv('sv-ds'),p:gv('sv-pr')};
+  if(eSvcIdx>=0)SVCS[eSvcIdx]=svc;else SVCS.push(svc);
+  await fset('config','services',{list:SVCS});
+  cmo('svc');rSvcList();
+  // Refresh any customer-facing services list
+  toast('✅ Service '+(eSvcIdx>=0?'updated':'added'));
+}
+function delSvc(i){
+  if(!confirm('Delete this service?'))return;
+  SVCS.splice(i,1);
+  fset('config','services',{list:SVCS});
+  rSvcList();toast('Deleted');
+}
+async function loadServices(){
+  try{const d=await db.collection('config').doc('services').get();if(d.exists&&d.data().list&&d.data().list.length)SVCS.splice(0,SVCS.length,...d.data().list);}catch{}
+}
+
+// ── CSV IMPORT ────────────────────────────────────
+let _csvRows=[];
+function loadCSV(input){
+  const file=input.files[0];if(!file)return;
+  document.getElementById('csv-fname').textContent=file.name;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const text=e.target.result;
+    const lines=text.split(/\r?\n/).filter(l=>l.trim());
+    if(lines.length<2){toast('CSV must have header + at least 1 row');return;}
+    const hdr=lines[0].split(',').map(h=>h.replace(/"/g,'').trim().toLowerCase());
+    _csvRows=[];
+    for(let i=1;i<lines.length;i++){
+      const cols=lines[i].match(/(".*?"|[^,]+)/g)||[];
+      const row={};
+      hdr.forEach(function(h,j){row[h]=(cols[j]||'').replace(/"/g,'').trim();});
+      if(!row.name)continue;
+      _csvRows.push({
+        name:row.name,brand:row.brand||'',category:row.category||'Accessories',
+        sellPrice:parseFloat(row.sellprice||row['sell price']||0)||0,
+        buyPrice:parseFloat(row.buyprice||row['buy price']||0)||0,
+        qty:parseInt(row.qty||row.quantity||0)||0,
+        warranty:parseInt(row.warranty||0)||0,
+        desc:row.desc||row.description||'',date:td()
+      });
+    }
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-count').textContent=_csvRows.length+' products ready to import';
+    document.getElementById('csv-rows').innerHTML=_csvRows.map(function(r){return'• '+r.name+' — ₹'+r.sellPrice+' (Qty: '+r.qty+')';}).join('<br>');
+    const btn=document.getElementById('csv-import-btn');btn.disabled=false;btn.style.opacity='1';
+  };
+  reader.readAsText(file);
+}
+async function doCSVImport(){
+  if(!_csvRows.length||BUSY)return;BUSY=true;ld('Importing '+_csvRows.length+' products...');
+  let ok=0;
+  for(const row of _csvRows){
+    try{await fadd('products',row);ok++;}catch(e){console.warn('CSV row failed',e);}
+  }
+  hl();BUSY=false;cmo('csv');
+  document.getElementById('csv-preview').style.display='none';
+  document.getElementById('csv-fname').textContent='No file selected';
+  document.getElementById('csv-import-btn').disabled=true;
+  document.getElementById('csv-import-btn').style.opacity='.5';
+  _csvRows=[];
+  rProds();rHome();toast('✅ Imported '+ok+' products!');
+}
+
+// ── ASSIGN TICKET ─────────────────────────────────
+let _asgnTid='';
+function openAssign(tid){
+  const t=D.tickets.find(x=>x.id===tid);if(!t)return;
+  _asgnTid=tid;
+  document.getElementById('asgn-info').innerHTML=
+  '<div style="font-weight:700;font-size:13px">'+t.refNum+' — '+t.service+'</div>'+
+  '<div style="font-size:11px;color:var(--mt);margin-top:3px">Customer: '+t.name+' · '+t.mobile+'</div>';
+  const sel=document.getElementById('asgn-tech');
+  const techs=D.users.filter(x=>x.role==='technician'&&x.active!==false);
+  sel.innerHTML='<option value="">-- Select Technician --</option>'+
+    techs.map(function(u){
+      const busy=D.tickets.filter(x=>x.assignedTechId===u.id&&!['done','cancel'].includes(x.status)).length;
+      return'<option value="'+u.id+'">'+u.name+' (+91 '+u.mobile+') — '+busy+' active tickets</option>';
+    }).join('');
+  if(t.assignedTechId)sv2('asgn-tech',t.assignedTechId);
+  sv('asgn-note','');
+  cmo('vtkt');omo('assign');
+}
+async function doAssign(){
+  if(BUSY)return;
+  const techId=sv2get('asgn-tech');if(!techId){toast('Select a technician');return;}
+  const tech=D.users.find(x=>x.id===techId);if(!tech)return;
+  const t=D.tickets.find(x=>x.id===_asgnTid);if(!t)return;
+  BUSY=true;ld('Assigning...');
+  const hist=(t.notesHistory)||[];
+  const note=gv('asgn-note');
+  hist.push({by:U.name,role:'admin',text:'Assigned to '+tech.name+(note?' — '+note:''),at:new Date().toLocaleString('en-IN')});
+  try{
+    await fset('tickets',_asgnTid,{assignedTechId:techId,assignedTechName:tech.name,assignedTechMobile:tech.mobile,status:'assigned',notesHistory:hist});
+    cmo('assign');rTickets();rHome();toast('✅ Assigned to '+tech.name);
+  }catch(e){toast(e.message);}hl();BUSY=false;
+}
+
+// ── NOTES HISTORY ─────────────────────────────────
+let _notesCol='',_notesId='';
+function openNotes(col,id){
+  _notesCol=col;_notesId=id;
+  const item=(col==='ticket'?D.tickets:D.orders).find(x=>x.id===id);if(!item)return;
+  document.getElementById('nh-ttl').textContent='Notes — '+(item.refNum||id);
+  renderNotesHistory(item);
+  // hide add box for customers on orders (admin/tech only add notes)
+  document.getElementById('nh-add').style.display=(col==='order'&&ROLE==='customer')?'none':'block';
+  cmo(col==='ticket'?'vtkt':'vord');omo('notes');
+}
+function renderNotesHistory(item){
+  const hist=(item&&item.notesHistory)||[];
+  const el=document.getElementById('nh-history');
+  if(!hist.length){el.innerHTML='<div style="text-align:center;padding:16px;font-size:12px;color:var(--mt)">No notes yet.</div>';return;}
+  el.innerHTML='<div class="nt">'+hist.slice().reverse().map(function(n){
+    const roleClr=n.role==='admin'?'var(--rd)':n.role==='technician'?'var(--or)':'var(--ac2)';
+    return'<div class="nt-item"><div class="nt-who" style="color:'+roleClr+'">'+n.by+' <span style="color:var(--mt);font-weight:400">('+n.role+')</span></div>'+
+    '<div class="nt-txt">'+n.text+'</div><div class="nt-when">'+n.at+'</div></div>';
+  }).join('')+'</div>';
+}
+async function addNote(){
+  if(BUSY)return;
+  const text=gv('nh-text');if(!text){toast('Enter a note');return;}
+  const items=(_notesCol==='ticket'?D.tickets:D.orders);
+  const item=items.find(x=>x.id===_notesId);if(!item)return;
+  BUSY=true;
+  const hist=(item.notesHistory)||[];
+  hist.push({by:U.name,role:ROLE,text,at:new Date().toLocaleString('en-IN')});
+  try{
+    await fset(_notesCol==='ticket'?'tickets':'orders',_notesId,{notesHistory:hist});
+    sv('nh-text','');renderNotesHistory(item);toast('✅ Note added');
+  }catch(e){toast(e.message);}BUSY=false;
+}
+
+
+// ── COMPANY DETAILS ───────────────────────────────
+var COMPANY={};
+async function loadCompany(){
+  try{
+    var d=await db.collection('config').doc('company').get();
+    if(d.exists)COMPANY=d.data();
+  }catch(e){console.warn('loadCompany:',e);}
+}
+function rCompany(){
+  var c=COMPANY;
+  document.getElementById('s-company').innerHTML=
+  '<div class="hero" style="margin-bottom:12px">'+
+  '<div class="hero-tag">Business Info</div>'+
+  '<h3>'+(c.bname||'TechLink IT Solutions')+'</h3>'+
+  '<p>'+(c.city||'Bangalore')+' · '+(c.hours||'Mon–Sat 9AM–7PM')+'</p>'+
+  '</div>'+
+  [['🏢 Business',c.bname],['👤 Owner',c.owner],['📞 Mobile',c.cmob?'+91 '+c.cmob:'—'],
+   ['💬 WhatsApp',c.wa?'+91 '+c.wa:'—'],['📧 Email',c.email||'—'],
+   ['📍 Address',c.caddr||'—'],['🏠 Landmark',c.clmk||'—'],
+   ['🌆 City',c.city||'—'],['🕐 Hours',c.hours||'—'],['🧾 GST',c.gst||'—']]
+  .filter(function(r){return r[1];})
+  .map(function(r){return'<div style="display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--bd)">'+
+    '<span style="font-size:12px;min-width:110px;color:var(--mt)">'+r[0]+'</span>'+
+    '<span style="font-size:13px;font-weight:500;flex:1">'+r[1]+'</span></div>';}).join('')+
+  '<button class="ba" style="width:100%;margin-top:14px" onclick="openEditCompany()">✏ Edit Details</button>'+
+  '<button class="bg" style="width:100%;margin-top:8px" onclick="goS(\'more\')">← Back</button>'+
+  '<div style="height:8px"></div>';
+}
+function openEditCompany(){
+  var c=COMPANY;
+  sv('co-bname',c.bname||'');sv('co-owner',c.owner||'');
+  sv('co-cmob',c.cmob||'');sv('co-wa',c.wa||'');
+  sv('co-email',c.email||'');sv('co-caddr',c.caddr||'');
+  sv('co-clmk',c.clmk||'');sv('co-city',c.city||'Bangalore');
+  sv('co-hours',c.hours||'Mon–Sat 9AM–7PM, Emergency 24×7');
+  sv('co-gst',c.gst||'');
+  var d=document.getElementById('co-cloc-drop');if(d)d.style.display='none';
+  omo('company');
+}
+async function saveCompany(){
+  if(BUSY)return;
+  var bname=gv('co-bname'),owner=gv('co-owner');
+  if(!bname||!owner){toast('Enter business name and owner');return;}
+  BUSY=true;ld('Saving...');
+  var obj={bname,owner,cmob:gv('co-cmob'),wa:gv('co-wa'),email:gv('co-email'),
+    caddr:gv('co-caddr'),clmk:gv('co-clmk'),city:gv('co-city'),
+    hours:gv('co-hours'),gst:gv('co-gst')};
+  try{
+    await db.collection('config').doc('company').set(obj,{merge:true});
+    COMPANY=obj;cmo('company');rCompany();toast('✅ Company details saved!');
+  }catch(e){toast('Error: '+e.message);}
+  hl();BUSY=false;
+}
+
 window.addEventListener('DOMContentLoaded',init);
 </script>
+
+<!-- MODAL: Add/Edit Service -->
+<div class="mo" id="mo-svc"><div class="ms"><div class="mh"></div><div class="mt2" id="svc-ttl">Add Service</div>
+  <div class="fg">
+    <div class="fr">
+      <div><label class="fl">Icon (emoji)</label><input class="fi" id="sv-ic" placeholder="⚡" maxlength="4"/></div>
+      <div><label class="fl">Price</label><input class="fi" id="sv-pr" placeholder="From ₹350"/></div>
+    </div>
+    <div><label class="fl">Service Name *</label><input class="fi" id="sv-nm" placeholder="UPS Repair / Service"/></div>
+    <div><label class="fl">Description</label><input class="fi" id="sv-ds" placeholder="Brands and details..."/></div>
+  </div>
+  <div class="mact"><button class="bc" onclick="cmo('svc')">Cancel</button><button class="bs" onclick="saveSvc()">Save Service</button></div>
+</div></div>
+
+<!-- MODAL: CSV Import Products -->
+<div class="mo" id="mo-csv"><div class="ms"><div class="mh"></div><div class="mt2">Import Products from CSV</div>
+  <div style="background:var(--cd);border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:12px;font-size:12px;color:var(--mt);line-height:1.7">
+    <b style="color:var(--tx)">Required columns (first row = header):</b><br>
+    name, brand, category, sellPrice, buyPrice, qty, warranty, desc<br>
+    <b style="color:var(--ac)">Categories:</b> UPS - Home, UPS - Office, Battery - New, Laptop, Printer, CCTV, Networking, Accessories
+  </div>
+  <div style="background:var(--cd);border:1.5px dashed var(--bd);border-radius:10px;padding:20px;text-align:center;margin-bottom:12px;cursor:pointer" onclick="document.getElementById('csv-file').click()">
+    <div style="font-size:2rem;margin-bottom:6px">📂</div>
+    <div style="font-size:13px;font-weight:600">Tap to select CSV file</div>
+    <div style="font-size:11px;color:var(--mt);margin-top:3px" id="csv-fname">No file selected</div>
+    <input type="file" id="csv-file" accept=".csv" style="display:none" onchange="loadCSV(this)"/>
+  </div>
+  <div id="csv-preview" style="display:none;margin-bottom:12px">
+    <div style="font-size:11px;font-weight:700;color:var(--ac);margin-bottom:6px" id="csv-count"></div>
+    <div style="background:var(--sf);border:1px solid var(--bd);border-radius:8px;max-height:150px;overflow-y:auto;font-size:11px;color:var(--mt);padding:8px 10px;line-height:1.8" id="csv-rows"></div>
+  </div>
+  <div class="mact"><button class="bc" onclick="cmo('csv')">Cancel</button><button class="bs" id="csv-import-btn" onclick="doCSVImport()" style="opacity:.5" disabled>Import Products</button></div>
+</div></div>
+
+<!-- MODAL: Assign Ticket to Technician -->
+<div class="mo" id="mo-assign"><div class="ms"><div class="mh"></div><div class="mt2">Assign Ticket</div>
+  <div style="background:var(--cd);border:1px solid var(--bd);border-radius:10px;padding:11px 12px;font-size:13px;margin-bottom:14px" id="asgn-info"></div>
+  <div class="fg">
+    <div><label class="fl">Assign To</label>
+      <select class="fi fsel" id="asgn-tech">
+        <option value="">-- Select Technician --</option>
+      </select>
+    </div>
+    <div><label class="fl">Note (optional)</label><input class="fi" id="asgn-note" placeholder="Instructions for technician..."/></div>
+  </div>
+  <div class="mact"><button class="bc" onclick="cmo('assign')">Cancel</button><button class="bs" onclick="doAssign()">Assign Ticket</button></div>
+</div></div>
+
+<!-- MODAL: Notes History (tickets & orders) -->
+<div class="mo" id="mo-notes"><div class="ms"><div class="mh"></div><div class="mt2" id="nh-ttl">Notes History</div>
+  <div id="nh-history" style="margin-bottom:12px;max-height:260px;overflow-y:auto"></div>
+  <div id="nh-add">
+    <label class="fl">Add Note</label>
+    <textarea class="fi fta" id="nh-text" placeholder="Type your note here..."></textarea>
+    <button class="bs" style="width:100%;margin-top:10px" onclick="addNote()">➕ Add Note</button>
+  </div>
+</div></div>
+
+
+<!-- MODAL: Company Details -->
+<div class="mo" id="mo-company"><div class="ms">
+  <div class="mh"></div><div class="mt2">Company Details</div>
+  <div class="fg">
+    <div><label class="fl">Business Name *</label><input class="fi" id="co-bname" placeholder="e.g. TechLink IT Solutions"/></div>
+    <div><label class="fl">Owner / Contact Person *</label><input class="fi" id="co-owner" placeholder="e.g. Gavi Hatti"/></div>
+    <div><label class="fl">Mobile Number</label><input class="fi" type="tel" id="co-cmob" placeholder="10-digit mobile"/></div>
+    <div><label class="fl">WhatsApp Number</label><input class="fi" type="tel" id="co-wa" placeholder="10-digit WhatsApp"/></div>
+    <div><label class="fl">Email</label><input class="fi" type="email" id="co-email" placeholder="support@yourcompany.com"/></div>
+    <div><label class="fl">Full Address *</label>
+      <div class="loc"><div class="loc-in"><svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.33 8 13 8 13s8-7.67 8-13a8 8 0 0 0-8-8z"/></svg>
+        <input id="co-caddr" placeholder="Type address or use GPS..." oninput="lsrch(this.value,'co-cloc-drop')"/></div>
+        <div class="loc-drop" id="co-cloc-drop" style="display:none"></div>
+        <button class="loc-gps" onclick="gps('co-caddr','co-cloc-drop')">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>Use GPS Location</button>
+      </div>
+    </div>
+    <div><label class="fl">Landmark</label><input class="fi" id="co-clmk" placeholder="Near landmark, area..."/></div>
+    <div><label class="fl">City</label><input class="fi" id="co-city" placeholder="e.g. Bangalore"/></div>
+    <div><label class="fl">Working Hours</label><input class="fi" id="co-hours" placeholder="e.g. Mon–Sat 9AM–7PM, Emergency 24×7"/></div>
+    <div><label class="fl">GST Number (optional)</label><input class="fi" id="co-gst" placeholder="e.g. 29XXXXX..."/></div>
+  </div>
+  <div class="mact"><button class="bc" onclick="cmo('company')">Cancel</button><button class="bs" onclick="saveCompany()">Save Details</button></div>
+</div></div>
+
 </body>
 </html>
