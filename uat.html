@@ -379,8 +379,11 @@ input,select,textarea{font-family:var(--fb);outline:none;color:var(--tx)}
 </div></div>
 
 <div class="mo" id="mo-ctkt"><div class="ms"><div class="mh"></div><div class="mt2">Raise Service Request</div>
+  <div id="ct-user-info" style="background:var(--cd);border:1px solid var(--bd);border-radius:9px;padding:9px 12px;margin-bottom:12px;display:flex;align-items:center;gap:9px">
+    <div style="font-size:20px">👤</div>
+    <div><div id="ct-user-name" style="font-size:13px;font-weight:700"></div><div id="ct-user-mob" style="font-size:11px;color:var(--mt)"></div></div>
+  </div>
   <div class="fg">
-    <div><label class="fl">Your Name *</label><input class="fi" id="ct-nm" placeholder="Full name"/></div>
     <div><label class="fl">Area / Address *</label>
       <div class="loc"><div class="loc-in"><svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.33 8 13 8 13s8-7.67 8-13a8 8 0 0 0-8-8z"/></svg><input id="ct-addr" placeholder="Type address or use GPS..." oninput="lsrch(this.value,'ct-drop')"/></div><div class="loc-drop" id="ct-drop" style="display:none"></div><button class="loc-gps" onclick="gps('ct-addr','ct-drop')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>Use GPS Location</button></div>
     </div>
@@ -391,6 +394,10 @@ input,select,textarea{font-family:var(--fb);outline:none;color:var(--tx)}
 </div></div>
 
 <div class="mo" id="mo-chk"><div class="ms"><div class="mh"></div><div class="mt2">Confirm Order</div>
+  <div id="co-user-info" style="background:var(--cd);border:1px solid var(--bd);border-radius:9px;padding:9px 12px;margin-bottom:10px;display:flex;align-items:center;gap:9px">
+    <div style="font-size:20px">👤</div>
+    <div><div id="co-user-name" style="font-size:13px;font-weight:700"></div><div id="co-user-mob" style="font-size:11px;color:var(--mt)"></div></div>
+  </div>
   <div id="chk-items" style="margin-bottom:12px"></div>
   <div class="fg">
     <div><label class="fl">Delivery Address *</label>
@@ -500,7 +507,6 @@ function showAuth(){
   var a=document.getElementById('auth');
   a.style.display='block';
   selRole('admin');
-  buildRoleForm('admin','login');
 }
 function show(id){var el=document.getElementById(id);if(el)el.classList.add('on');}
 function hide(id){var el=document.getElementById(id);if(el)el.classList.remove('on');}
@@ -537,53 +543,197 @@ function init(){
   },1000);
 }
 
-// ── AUTH ──────────────────────────────────────────
-let sRole='admin',aMode='login',pBuf='';
-function selRole(r){sRole=r;['admin','technician','customer'].forEach(x=>document.getElementById('rc-'+x)?.classList.toggle('on',x===r));aMode='login';buildRoleForm(r,'login');}
-function swMode(m){aMode=m;buildRoleForm(sRole,m);}
-function buildRoleForm(role,mode){
+// ── AUTH — smart single-field flow ────────────────
+// Steps: mobile → (existing) enter-pin
+//                (new)      name → set-pin → confirm-pin
+let sRole='admin',pBuf='';
+let _step='mobile',_mob='',_uname='',_newPin='';
+
+function selRole(r){
+  sRole=r;
+  ['admin','technician','customer'].forEach(function(x){
+    document.getElementById('rc-'+x)?.classList.toggle('on',x===r);
+  });
+  _step='mobile';_mob='';_uname='';_newPin='';pBuf='';
+  buildAuthStep();
+}
+
+function buildAuthStep(){
+  var el=document.getElementById('role-form');
+  var tt=document.getElementById('auth-ttl');
   pBuf='';
-  const el=document.getElementById('role-form');
-  document.getElementById('auth-ttl').textContent=role==='admin'?'Admin Sign In':mode==='login'?(role==='technician'?'Technician Sign In':'Customer Sign In'):(role==='technician'?'Register Technician':'Create Account');
-  let h='';
-  if(role!=='admin')h='<div class="atabs"><div class="atab '+(mode==='login'?'on':'')+'" onclick="swMode(\'login\')">Sign In</div><div class="atab '+(mode==='register'?'on':'')+'" onclick="swMode(\'register\')">Register</div></div>'+(mode==='register'?'<div><label class="fl">Full Name *</label><input class="fi" id="reg-nm" placeholder="Your full name" style="margin-bottom:10px"/></div>':'')+'<div class="mf"><span class="cc">+91</span><input type="tel" id="auth-mob" maxlength="10" placeholder="10-digit mobile" inputmode="numeric"/></div>';
-  h+='<div style="font-size:11px;color:var(--mt);text-align:center;margin-bottom:4px">'+(role==='admin'?'Enter Admin PIN':mode==='register'?'Set 4-digit PIN':'Enter your PIN')+'</div>';
-  h+='<div class="pin-row" id="pin-row">'+Array(4).fill('<div class="pd"></div>').join('')+'</div>';
-  h+='<div class="pin-grid">'+[1,2,3,4,5,6,7,8,9,'','0','del'].map(k=>'<button class="pk'+(k==='del'?' del':k===''?' mt':'')+'"'+(k===''?'':' onclick="pp(\''+k+'\')"')+'>'+( k==='del'?'&#9003;':String(k))+'</button>').join('')+'</div>';
-  if(role!=='admin')h+='<button class="lnk" style="margin-top:8px" onclick="swMode(\''+(mode==='login'?'register':'login')+'\')">'+(mode==='login'?'New here? Register':'Already registered? Sign in')+'</button>';
-  el.innerHTML=h;
-}
-function pp(k){
-  if(k==='del')pBuf=pBuf.slice(0,-1);else if(pBuf.length<4)pBuf+=k;
-  const r=document.getElementById('pin-row');if(r){const ds=r.querySelectorAll('.pd');ds.forEach((d,i)=>d.classList.toggle('on',i<pBuf.length));}
-  if(pBuf.length===4)setTimeout(tryLogin,100);
-}
-async function tryLogin(){
-  const pin=pBuf;
-  if(sRole==='admin'){if(pin===ADMIN_PIN)doLogin('admin',{id:'admin',name:'Admin',role:'admin'});else{shk();toast('Wrong Admin PIN ❌');}return;}
-  const mob=(document.getElementById('auth-mob')?.value||'').trim();
-  if(mob.length!==10){shk();toast('Enter valid 10-digit mobile');return;}
-  if(aMode==='register'){
-    const nm=(document.getElementById('reg-nm')?.value||'').trim();
-    if(!nm){toast('Enter your full name');pBuf='';clrPins();return;}
-    if(D.users.find(u=>u.mobile===mob)){toast('Mobile '+mob+' already registered. Please sign in.');pBuf='';clrPins();swMode('login');return;}
-    ld('Creating account...');
-    try{const nu={name:nm,mobile:mob,pin,role:sRole==='technician'?'technician':'customer',active:true,joinedOn:td()};const id=await fadd('users',nu);nu.id=id;hl();doLogin(nu.role,nu);}
-    catch(e){hl();toast('Error: '+e.message);}return;
+
+  // Admin — just PIN
+  if(sRole==='admin'){
+    tt.textContent='Admin Sign In';
+    el.innerHTML=
+      '<div style="font-size:11px;color:var(--mt);text-align:center;margin-bottom:4px">Enter Admin PIN</div>'+
+      _pinRow()+_pinGrid();
+    return;
   }
-  ld('Signing in...');
-  // Use already-loaded users; re-fetch only if empty
-  if(!D.users.length){try{D.users=await fall('users');}catch{}}
-  hl();
-  const u=D.users.find(x=>x.mobile===mob&&x.pin===pin);
-  if(!u){shk();toast('Wrong mobile or PIN ❌');return;}
-  if(u.active===false){shk();toast('Account disabled. Contact admin.');return;}
-  if(sRole==='technician'&&u.role!=='technician'){shk();toast('Not a technician account');return;}
-  if(sRole==='customer'&&u.role==='technician'){shk();toast('Use Technician tab');return;}
-  doLogin(u.role,u);
+
+  var label=sRole==='technician'?'Technician':'Customer';
+
+  // Step 1 — enter mobile
+  if(_step==='mobile'){
+    tt.textContent=label+' Login';
+    el.innerHTML=
+      '<div style="font-size:12px;color:var(--mt);margin-bottom:8px">Enter your mobile number to sign in or register</div>'+
+      '<div class="mf"><span class="cc">+91</span>'+
+      '<input type="tel" id="auth-mob" maxlength="10" placeholder="10-digit mobile" inputmode="numeric"'+
+      ' onkeydown="if(event.key===\'Enter\')checkMob()"/></div>'+
+      '<button class="bp" onclick="checkMob()">Continue →</button>';
+    setTimeout(function(){document.getElementById('auth-mob')?.focus();},80);
+    return;
+  }
+
+  // Step 2a — existing user: enter PIN
+  if(_step==='enter-pin'){
+    tt.textContent='Welcome back!';
+    el.innerHTML=
+      '<div style="background:var(--cd);border:1px solid var(--bd);border-radius:9px;padding:9px 12px;margin-bottom:12px;display:flex;align-items:center;gap:9px">'+
+      '<div style="font-size:18px">📱</div>'+
+      '<div><div style="font-size:13px;font-weight:700">+91 '+_mob+'</div>'+
+      '<div style="font-size:11px;color:var(--mt)">Enter your PIN to sign in</div></div>'+
+      '<button onclick="_step=\'mobile\';buildAuthStep()" style="margin-left:auto;font-size:11px;color:var(--ac2);background:none;border:none;cursor:pointer">Change</button></div>'+
+      _pinRow()+_pinGrid();
+    return;
+  }
+
+  // Step 2b — new user: enter name
+  if(_step==='name'){
+    tt.textContent='Create Account';
+    el.innerHTML=
+      '<div style="background:var(--cd);border:1px solid var(--bd);border-radius:9px;padding:9px 12px;margin-bottom:12px;font-size:12px;color:var(--mt)">'+
+      '📱 +91 '+_mob+' &nbsp;·&nbsp; New '+label+' account</div>'+
+      '<div><label class="fl">Your Full Name *</label>'+
+      '<input class="fi" id="reg-nm" placeholder="Enter your full name" style="margin-bottom:10px"'+
+      ' onkeydown="if(event.key===\'Enter\')submitName()"/></div>'+
+      '<button class="bp" onclick="submitName()">Continue →</button>'+
+      '<button onclick="_step=\'mobile\';buildAuthStep()" class="lnk" style="margin-top:8px">← Change number</button>';
+    setTimeout(function(){document.getElementById('reg-nm')?.focus();},80);
+    return;
+  }
+
+  // Step 3 — new user: set PIN
+  if(_step==='set-pin'){
+    tt.textContent='Set Your PIN';
+    el.innerHTML=
+      '<div style="background:var(--cd);border:1px solid var(--bd);border-radius:9px;padding:9px 12px;margin-bottom:12px">'+
+      '<div style="font-size:13px;font-weight:700">'+_uname+'</div>'+
+      '<div style="font-size:11px;color:var(--mt)">+91 '+_mob+'</div></div>'+
+      '<div style="font-size:11px;color:var(--mt);text-align:center;margin-bottom:4px">Choose a 4-digit PIN</div>'+
+      _pinRow()+_pinGrid();
+    return;
+  }
+
+  // Step 4 — new user: confirm PIN
+  if(_step==='confirm-pin'){
+    tt.textContent='Confirm Your PIN';
+    el.innerHTML=
+      '<div style="background:rgba(0,201,167,.08);border:1px solid rgba(0,201,167,.3);border-radius:9px;padding:9px 12px;margin-bottom:12px;font-size:12px;color:var(--ac)">'+
+      '✅ Good — now enter the same PIN again to confirm</div>'+
+      '<div style="font-size:11px;color:var(--mt);text-align:center;margin-bottom:4px">Confirm PIN</div>'+
+      _pinRow()+_pinGrid();
+    return;
+  }
 }
-function clrPins(){const r=document.getElementById('pin-row');if(r)r.querySelectorAll('.pd').forEach(d=>d.classList.remove('on'));}
-function shk(){const r=document.getElementById('pin-row');if(r){r.style.animation='shake .3s ease';setTimeout(()=>r.style.animation='',350);}pBuf='';clrPins();}
+
+function _pinRow(){
+  return '<div class="pin-row" id="pin-row"><div class="pd"></div><div class="pd"></div><div class="pd"></div><div class="pd"></div></div>';
+}
+function _pinGrid(){
+  return '<div class="pin-grid">'+[1,2,3,4,5,6,7,8,9,'','0','del'].map(function(k){
+    var cl='pk'+(k==='del'?' del':k===''?' mt':'');
+    var fn=k===''?'':' onclick="pp(\''+k+'\')"';
+    return '<button class="'+cl+'"'+fn+'>'+(k==='del'?'&#9003;':String(k))+'</button>';
+  }).join('')+'</div>';
+}
+
+async function checkMob(){
+  var mob=(document.getElementById('auth-mob')?.value||'').trim();
+  if(mob.length!==10){toast('Enter a valid 10-digit mobile number');return;}
+  _mob=mob;
+  ld('Checking...');
+  if(!D.users.length){try{D.users=await fall('users');}catch(e){}}
+  hl();
+  var found=D.users.find(function(u){return u.mobile===mob;});
+  if(found){
+    if(sRole==='technician'&&found.role!=='technician'){
+      toast('Registered as Customer — use Customer login');return;
+    }
+    if(sRole==='customer'&&found.role==='technician'){
+      toast('Registered as Technician — use Technician login');return;
+    }
+    if(found.active===false){toast('Account disabled. Contact admin.');return;}
+    _step='enter-pin';
+  } else {
+    _step='name';
+  }
+  buildAuthStep();
+}
+
+function submitName(){
+  var nm=(document.getElementById('reg-nm')?.value||'').trim();
+  if(!nm){toast('Enter your full name');return;}
+  _uname=nm;_step='set-pin';buildAuthStep();
+}
+
+function pp(k){
+  if(k==='del')pBuf=pBuf.slice(0,-1);
+  else if(pBuf.length<4)pBuf+=k;
+  var r=document.getElementById('pin-row');
+  if(r){var ds=r.querySelectorAll('.pd');ds.forEach(function(d,i){d.classList.toggle('on',i<pBuf.length);});}
+  if(pBuf.length===4)setTimeout(handlePin,100);
+}
+
+async function handlePin(){
+  var pin=pBuf;
+
+  // Admin
+  if(sRole==='admin'){
+    if(pin===ADMIN_PIN)doLogin('admin',{id:'admin',name:'Admin',role:'admin'});
+    else{shk();toast('Wrong Admin PIN ❌');}
+    return;
+  }
+
+  // Existing user — verify PIN
+  if(_step==='enter-pin'){
+    var u=D.users.find(function(x){return x.mobile===_mob&&x.pin===pin;});
+    if(!u){shk();toast('Wrong PIN ❌ Try again');return;}
+    doLogin(u.role,u);
+    return;
+  }
+
+  // New user — save PIN, go to confirm
+  if(_step==='set-pin'){
+    _newPin=pin;_step='confirm-pin';buildAuthStep();
+    return;
+  }
+
+  // New user — confirm PIN, create account
+  if(_step==='confirm-pin'){
+    if(pin!==_newPin){
+      shk();toast('PINs do not match — try again');
+      _step='set-pin';_newPin='';buildAuthStep();
+      return;
+    }
+    ld('Creating account...');
+    try{
+      var nu={name:_uname,mobile:_mob,pin:_newPin,
+        role:sRole==='technician'?'technician':'customer',
+        active:true,joinedOn:td()};
+      var uid=await fadd('users',nu);
+      nu.id=uid;hl();
+      toast('Account created! Welcome '+_uname+' 🎉');
+      doLogin(nu.role,nu);
+    }catch(e){hl();toast('Error: '+e.message);}
+    return;
+  }
+}
+
+function clrPins(){var r=document.getElementById('pin-row');if(r)r.querySelectorAll('.pd').forEach(function(d){d.classList.remove('on');});}
+function shk(){var r=document.getElementById('pin-row');if(r){r.style.animation='shake .3s ease';setTimeout(function(){r.style.animation='';},350);}pBuf='';clrPins();}
 function doLogin(role,user){
   ROLE=role;U=user;CART=[];
   document.getElementById('auth').style.display='none';
@@ -1008,10 +1158,14 @@ function rCtix(){
   '<div style="height:8px"></div>';
 }
 async function cSubTkt(){
-  if(BUSY)return;const nm=gv('ct-nm');if(!nm){toast('Enter your name');return;}
+  if(BUSY)return;
+  const addr=gv('ct-addr');if(!addr){toast('Enter your address / area');return;}
   BUSY=true;ld('Submitting...');
   const num='TK-'+String(D.tickets.length+1).padStart(3,'0');
-  try{await fadd('tickets',{refNum:num,name:nm,mobile:U.mobile,addr:gv('ct-addr'),service:sv2get('ct-svc'),priority:'Normal',date:td(),desc:gv('ct-desc'),status:'pending',notes:''});cmo('ctkt');rCtix();rCh();toast('✅ Request: '+num);}catch(e){toast(e.message);}hl();BUSY=false;
+  try{
+    await fadd('tickets',{refNum:num,name:U.name,mobile:U.mobile,addr,service:sv2get('ct-svc'),priority:'Normal',date:td(),desc:gv('ct-desc'),status:'pending',notes:''});
+    cmo('ctkt');rCtix();rCh();toast('✅ Request submitted: '+num);
+  }catch(e){toast(e.message);}hl();BUSY=false;
 }
 
 // ── CUSTOMER PROFILE ──────────────────────────────
@@ -1060,10 +1214,25 @@ function gps(iid,did){
 document.addEventListener('click',function(e){if(!e.target.closest('.loc'))document.querySelectorAll('.loc-drop').forEach(function(d){d.style.display='none';});});
 
 // ── UTILS ─────────────────────────────────────────
-function omo(id){const el=document.getElementById('mo-'+id);if(el)el.classList.add('on');if(id==='tkt'){const d=document.getElementById('tk-dt');if(d)d.valueAsDate=new Date();}}
+function omo(id){
+  const el=document.getElementById('mo-'+id);if(el)el.classList.add('on');
+  if(id==='tkt'){const d=document.getElementById('tk-dt');if(d)d.valueAsDate=new Date();}
+  // Auto-fill logged-in user info
+  if(id==='ctkt'&&U){
+    const nm=document.getElementById('ct-user-name');if(nm)nm.textContent=U.name;
+    const mob=document.getElementById('ct-user-mob');if(mob)mob.textContent='+91 '+U.mobile;
+    const addr=document.getElementById('ct-addr');if(addr)addr.value='';
+    const desc=document.getElementById('ct-desc');if(desc)desc.value='';
+    const drop=document.getElementById('ct-drop');if(drop)drop.style.display='none';
+  }
+  if(id==='chk'&&U){
+    const nm=document.getElementById('co-user-name');if(nm)nm.textContent=U.name;
+    const mob=document.getElementById('co-user-mob');if(mob)mob.textContent='+91 '+U.mobile;
+  }
+}
 function cmo(id){const el=document.getElementById('mo-'+id);if(el)el.classList.remove('on');}
 document.addEventListener('click',function(e){if(e.target.classList.contains('mo'))e.target.classList.remove('on');});
-function logout(){ROLE=null;U=null;CART=[];document.getElementById('app').style.display='none';document.getElementById('topbar').style.display='none';document.getElementById('bnav').style.display='none';document.getElementById('auth').style.display='block';selRole('admin');buildRoleForm('admin','login');toast('Signed out');}
+function logout(){ROLE=null;U=null;CART=[];document.getElementById('app').style.display='none';document.getElementById('topbar').style.display='none';document.getElementById('bnav').style.display='none';document.getElementById('auth').style.display='block';selRole('admin');toast('Signed out');}
 function wa(mob,nm){if(!mob)return;window.open('https://wa.me/91'+mob.replace(/\D/g,'')+'?text='+encodeURIComponent('Hello '+nm+', this is TechLink regarding your request.'));}
 function ld(msg){document.getElementById('lov').classList.add('on');document.getElementById('lmsg').textContent=msg||'Loading...';}
 function hl(){document.getElementById('lov').classList.remove('on');}
