@@ -316,6 +316,7 @@ input,select,textarea{font-family:var(--fb);outline:none;color:var(--tx)}
     <div id="s-more" class="scr"></div>
     <div id="s-svcs" class="scr"></div>
     <div id="s-company" class="scr"></div>
+    <div id="s-tprof" class="scr"></div>
     <div id="s-ch" class="scr"></div>
     <div id="s-cshop" class="scr"></div>
     <div id="s-ccart" class="scr"></div>
@@ -762,11 +763,11 @@ function doLogin(role,user){
 // ── NAV ───────────────────────────────────────────
 const NAVS={
   admin:[{id:'home',l:'Home',p:'M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z'},{id:'prods',l:'Products',p:'M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z'},{id:'orders',l:'Orders',p:'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2 M9 12h6 M9 16h4'},{id:'tickets',l:'Tickets',p:'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6'},{id:'more',l:'More',p:'M12 5m-1 0a1 1 0 102 0 1 1 0 10-2 0 M12 12m-1 0a1 1 0 102 0 1 1 0 10-2 0 M12 19m-1 0a1 1 0 102 0 1 1 0 10-2 0'}],
-  technician:[{id:'tickets',l:'Tickets',p:'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6'},{id:'inv',l:'Inventory',p:'M3 3h18v4H3z M3 10h18v4H3z M3 17h18v4H3z'},{id:'more',l:'More',p:'M12 5m-1 0a1 1 0 102 0 1 1 0 10-2 0 M12 12m-1 0a1 1 0 102 0 1 1 0 10-2 0 M12 19m-1 0a1 1 0 102 0 1 1 0 10-2 0'}],
+  technician:[{id:'tickets',l:'Tickets',p:'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6'},{id:'prods',l:'Products',p:'M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z'},{id:'svcs',l:'Services',p:'M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z'},{id:'inv',l:'Inventory',p:'M3 3h18v4H3z M3 10h18v4H3z M3 17h18v4H3z'},{id:'more',l:'More',p:'M12 5m-1 0a1 1 0 102 0 1 1 0 10-2 0 M12 12m-1 0a1 1 0 102 0 1 1 0 10-2 0 M12 19m-1 0a1 1 0 102 0 1 1 0 10-2 0'}],
   customer:[{id:'ch',l:'Home',p:'M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z'},{id:'cshop',l:'Shop',p:'M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z'},{id:'ccart',l:'Cart',p:'M9 20a1 1 0 102 0 1 1 0 00-2 0M20 20a1 1 0 102 0 1 1 0 00-2 0M1 1h4l2.68 13.39a2 2 0 001.94 1.61h9.72a2 2 0 001.95-1.55L23 8H6'},{id:'cordrs',l:'Orders',p:'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2 M9 12h6 M9 16h4'},{id:'ctix',l:'Service',p:'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6'},{id:'cprof',l:'Me',p:'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2 M12 11a4 4 0 100-8 4 4 0 000 8z'}]
 };
-const TTL={home:'Dashboard',prods:'Products',orders:'Orders',tickets:'Service Tickets',inv:'Inventory',more:'More',svcs:'Manage Services',company:'Company Details',ch:'TechLink',cshop:'Shop',ccart:'My Cart',cordrs:'My Orders',ctix:'Service',cprof:'My Account'};
-const SCRFN={home:rHome,prods:rProds,orders:rOrders,tickets:rTickets,inv:rInv,more:rMore,svcs:rSvcs,company:rCompany,ch:rCh,cshop:rCshop,ccart:rCcart,cordrs:rCordrs,ctix:rCtix,cprof:rCprof};
+const TTL={home:'Dashboard',prods:'Products',orders:'Orders',tickets:'Service Tickets',inv:'Inventory',more:'More',svcs:'Manage Services',company:'Company Details',tprof:'My Profile',ch:'TechLink',cshop:'Shop',ccart:'My Cart',cordrs:'My Orders',ctix:'Service',cprof:'My Account'};
+const SCRFN={home:rHome,prods:rProds,orders:rOrders,tickets:rTickets,inv:rInv,more:rMore,svcs:rSvcs,company:rCompany,tprof:rTprof,ch:rCh,cshop:rCshop,ccart:rCcart,cordrs:rCordrs,ctix:rCtix,cprof:rCprof};
 function buildNav(){
   document.getElementById('nw').innerHTML=(NAVS[ROLE]||NAVS.customer).map(n=>'<div class="ni" id="ni-'+n.id+'" onclick="goS(\''+n.id+'\')"><svg viewBox="0 0 24 24"><path d="'+n.p+'" stroke-linecap="round" stroke-linejoin="round"/></svg><span>'+n.l+'</span></div>').join('');
   uCart();
@@ -873,15 +874,21 @@ function openVO(id){
   '<div style="background:var(--sf);border-radius:7px;padding:8px 10px;margin-top:8px;font-size:11px;color:var(--mt);line-height:1.8;white-space:pre">'+(o.items||[]).map(i=>i.name+' × '+i.qty+' = ₹'+f(i.qty*(i.price||0))).join('\n')+'</div>'+
   (o.adminNote?'<div style="background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.2);border-radius:7px;padding:7px 10px;margin-top:8px;font-size:11px;color:var(--or)">Admin: '+o.adminNote+'</div>':'');
   sv2('vord-st',o.status);sv('vord-note','');
-  document.getElementById('vord-upd').insertAdjacentHTML('beforebegin',
-    '<button class="bg" style="width:100%;margin-bottom:10px;font-size:12px;padding:8px" onclick="openNotes(\'order\',\''+o.id+'\')">📋 View Notes History</button>'
-  );
+  // Remove old notes btn if exists, then add fresh one
+  var ob=document.getElementById('vord-notes-btn');if(ob)ob.remove();
+  var nb=document.createElement('button');
+  nb.id='vord-notes-btn';nb.className='bg';
+  nb.style.cssText='width:100%;margin-bottom:10px;font-size:12px;padding:8px;cursor:pointer';
+  nb.innerHTML='📋 View Notes History';
+  var oid2=o.id;nb.onclick=function(){openNotes('order',oid2);};
+  document.getElementById('vord-upd').parentNode.insertBefore(nb,document.getElementById('vord-upd'));
   omo('vord');
 }
 async function updOrd(){
   if(BUSY)return;BUSY=true;ld('Updating...');
   const o=D.orders.find(x=>x.id===vOid);
-  const hist=(o&&o.notesHistory)||[];
+  // Deep-copy so we never mutate the in-memory array reference
+  const hist=JSON.parse(JSON.stringify((o&&o.notesHistory)||[]));
   const note=gv('vord-note');
   if(note)hist.push({by:U.name,role:ROLE,text:note,at:new Date().toLocaleString('en-IN')});
   try{await fset('orders',vOid,{status:sv2get('vord-st'),adminNote:note,notesHistory:hist});cmo('vord');rOrders();rHome();toast('✅ Order updated');}catch(e){toast(e.message);}hl();BUSY=false;
@@ -926,7 +933,7 @@ async function updTkt(){
   if(st==='done'&&!note){toast('Add work notes to close');return;}
   BUSY=true;ld('Updating...');
   const t=D.tickets.find(x=>x.id===vTid);
-  const hist=(t&&t.notesHistory)||[];
+  const hist=JSON.parse(JSON.stringify((t&&t.notesHistory)||[]));
   if(note)hist.push({by:U.name,role:ROLE,text:note,at:new Date().toLocaleString('en-IN')});
   try{await fset('tickets',vTid,{status:st,notes:note,notesHistory:hist});cmo('vtkt');rTickets();rHome();toast('✅ Ticket → '+st);}catch(e){toast(e.message);}hl();BUSY=false;
 }
@@ -983,8 +990,21 @@ function rMore(){
   }
   document.getElementById('s-more').innerHTML=
   '<div class="ph"><div class="av">'+U.name.charAt(0)+'</div>'+
-  '<div><div class="pn">'+U.name+'</div><div class="pr">'+(ROLE==='admin'?'Administrator':'Technician')+'</div></div></div>'+
+  '<div><div class="pn">'+U.name+'</div><div class="pr">'+(ROLE==='admin'?'Administrator':'Technician · +91 '+U.mobile)+'</div></div>'+
+  (ROLE==='admin'?'<button class="ba" style="font-size:11px;padding:5px 10px;margin-left:auto" onclick="openEditCompany()">✏ Edit</button>':'')+
+  '</div>'+
+  (ROLE==='admin'&&COMPANY.bname?
+  '<div style="background:var(--cd);border:1px solid var(--bd);border-radius:var(--rr);padding:12px;margin-bottom:10px">'+
+  '<div style="font-family:var(--fh);font-size:15px;font-weight:700;margin-bottom:4px">'+COMPANY.bname+'</div>'+
+  '<div style="font-size:11px;color:var(--mt);line-height:1.7">'+
+  (COMPANY.owner?'👤 '+COMPANY.owner+'<br>':'')+
+  (COMPANY.cmob?'📞 +91 '+COMPANY.cmob+'<br>':'')+
+  (COMPANY.caddr?'📍 '+COMPANY.caddr+(COMPANY.clmk?' · '+COMPANY.clmk:'')+'<br>':'')+
+  (COMPANY.hours?'🕐 '+COMPANY.hours:'')+'</div></div>':
+  (ROLE==='admin'?'<div style="background:rgba(0,201,167,.07);border:1px dashed rgba(0,201,167,.3);border-radius:var(--rr);padding:12px;margin-bottom:10px;text-align:center;font-size:12px;color:var(--ac);cursor:pointer" onclick="openEditCompany()">'+
+  '🏢 Tap to add your Company Details</div>':''))+
   '<div class="ml">'+
+  (ROLE==='technician'?'<div class="mi" onclick="goS(\'tprof\')"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile &amp; Skills<svg class="arr" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>':'')+
   (ROLE==='admin'?'<div class="mi" onclick="goS(\'inv\')"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="5" rx="1"/><rect x="2" y="10" width="20" height="5" rx="1"/><rect x="2" y="17" width="20" height="5" rx="1"/></svg>Inventory<svg class="arr" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>'+
   '<div class="mi" onclick="omo(\'csv\')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Import CSV Products<svg class="arr" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>'+
   '<div class="mi" onclick="doExp()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV<svg class="arr" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>'+
@@ -1263,7 +1283,7 @@ function rSvcs(){
   document.getElementById('s-svcs').innerHTML=
   '<div style="display:flex;gap:7px;margin-bottom:10px">'+
   '<button class="ba" onclick="openAddSvc()">+ Add Service</button>'+
-  '<button class="bg" style="margin-left:auto" onclick="goS(\'more\')">← Back</button></div>'+
+  '<button class="bg" style="margin-left:auto" onclick="goS(\'more\');rMore()">← Back</button></div>'+
   '<div id="svc-list"></div><div style="height:8px"></div>';
   rSvcList();
 }
@@ -1444,7 +1464,7 @@ function rCompany(){
     '<span style="font-size:12px;min-width:110px;color:var(--mt)">'+r[0]+'</span>'+
     '<span style="font-size:13px;font-weight:500;flex:1">'+r[1]+'</span></div>';}).join('')+
   '<button class="ba" style="width:100%;margin-top:14px" onclick="openEditCompany()">✏ Edit Details</button>'+
-  '<button class="bg" style="width:100%;margin-top:8px" onclick="goS(\'more\')">← Back</button>'+
+  '<button class="bg" style="width:100%;margin-top:8px" onclick="goS(\'more\');rMore()">← Back</button>'+
   '<div style="height:8px"></div>';
 }
 function openEditCompany(){
@@ -1469,6 +1489,93 @@ async function saveCompany(){
   try{
     await db.collection('config').doc('company').set(obj,{merge:true});
     COMPANY=obj;cmo('company');rCompany();toast('✅ Company details saved!');
+  }catch(e){toast('Error: '+e.message);}
+  hl();BUSY=false;
+}
+
+
+// ── TECHNICIAN PROFILE ────────────────────────────
+let _techGPSLat=null,_techGPSLng=null;
+
+function rTprof(){
+  var u=D.users.find(function(x){return x.id===U.id;});
+  if(!u)u=U;
+  document.getElementById('s-tprof').innerHTML=
+  '<div class="ph"><div class="av ua-t">'+U.name.charAt(0)+'</div>'+
+  '<div><div class="pn">'+U.name+'</div><div class="pr">+91 '+U.mobile+' · Technician</div></div></div>'+
+  '<div style="background:var(--cd);border:1px solid var(--bd);border-radius:var(--rr);padding:14px;margin-bottom:10px">'+
+  [['🔧 Skills',u.skills||'—'],['💼 Experience',u.experience||'—'],
+   ['🟢 Availability',u.availability||'available'],
+   ['📍 Location',u.location||'—'],
+   ['📋 Notes',u.techNotes||'—']]
+  .map(function(r){
+    return'<div style="display:flex;gap:9px;padding:7px 0;border-bottom:1px solid var(--bd)">'+
+    '<span style="font-size:12px;min-width:105px;color:var(--mt)">'+r[0]+'</span>'+
+    '<span style="font-size:12px;flex:1">'+r[1]+'</span></div>';
+  }).join('')+
+  '</div>'+
+  '<button class="ba" style="width:100%" onclick="openTechProfile()">✏ Update Profile</button>'+
+  '<div style="height:8px"></div>';
+}
+
+function openTechProfile(){
+  var u=D.users.find(function(x){return x.id===U.id;})||U;
+  sv('tp-name',u.name||'');
+  sv('tp-mob',u.mobile||'');
+  sv('tp-skills',u.skills||'');
+  sv('tp-exp',u.experience||'');
+  sv2('tp-avail',u.availability||'available');
+  sv('tp-loc',u.location||'');
+  sv('tp-notes',u.techNotes||'');
+  _techGPSLat=u.lat||null;_techGPSLng=u.lng||null;
+  var cd=document.getElementById('tp-coords');
+  if(cd){if(_techGPSLat){cd.style.display='block';cd.textContent='📡 GPS: '+_techGPSLat.toFixed(5)+', '+_techGPSLng.toFixed(5);}else cd.style.display='none';}
+  var dp=document.getElementById('tp-loc-drop');if(dp)dp.style.display='none';
+  omo('tprof');
+}
+
+function captureTechGPS(){
+  if(!navigator.geolocation){toast('GPS not supported');return;}
+  var el=document.getElementById('tp-loc');
+  var cd=document.getElementById('tp-coords');
+  if(el)el.value='📡 Getting location...';
+  navigator.geolocation.getCurrentPosition(function(pos){
+    _techGPSLat=pos.coords.latitude;_techGPSLng=pos.coords.longitude;
+    fetch('https://nominatim.openstreetmap.org/reverse?lat='+_techGPSLat+'&lon='+_techGPSLng+'&format=json')
+      .then(function(r){return r.json();})
+      .then(function(d){
+        var addr=d.display_name||(_techGPSLat.toFixed(5)+', '+_techGPSLng.toFixed(5));
+        if(el)el.value=addr;
+        if(cd){cd.style.display='block';cd.textContent='📡 GPS: '+_techGPSLat.toFixed(5)+', '+_techGPSLng.toFixed(5);}
+        toast('📍 Location captured!');
+      }).catch(function(){
+        if(el)el.value=_techGPSLat.toFixed(5)+', '+_techGPSLng.toFixed(5);
+      });
+  },function(e){
+    if(el)el.value='';
+    toast({1:'Location denied.',2:'Unavailable.',3:'Timed out.'}[e.code]||'GPS error');
+  },{enableHighAccuracy:true,timeout:10000,maximumAge:0});
+}
+
+async function saveTechProfile(){
+  if(BUSY)return;
+  var nm=gv('tp-name');if(!nm){toast('Enter your name');return;}
+  BUSY=true;ld('Saving...');
+  var upd={
+    name:nm,
+    skills:gv('tp-skills'),
+    experience:gv('tp-exp'),
+    availability:sv2get('tp-avail'),
+    location:gv('tp-loc'),
+    techNotes:gv('tp-notes'),
+    lat:_techGPSLat,
+    lng:_techGPSLng
+  };
+  try{
+    await fset('users',U.id,upd);
+    Object.assign(U,upd);
+    cmo('tprof');rTprof();
+    toast('✅ Profile updated!');
   }catch(e){toast('Error: '+e.message);}
   hl();BUSY=false;
 }
@@ -1557,6 +1664,42 @@ window.addEventListener('DOMContentLoaded',init);
     <div><label class="fl">GST Number (optional)</label><input class="fi" id="co-gst" placeholder="e.g. 29XXXXX..."/></div>
   </div>
   <div class="mact"><button class="bc" onclick="cmo('company')">Cancel</button><button class="bs" onclick="saveCompany()">Save Details</button></div>
+</div></div>
+
+
+<!-- MODAL: Technician Profile -->
+<div class="mo" id="mo-tprof"><div class="ms">
+  <div class="mh"></div><div class="mt2">My Profile</div>
+  <div class="fg">
+    <div><label class="fl">Full Name</label><input class="fi" id="tp-name" placeholder="Your name"/></div>
+    <div><label class="fl">Mobile</label><input class="fi" id="tp-mob" placeholder="Mobile number" readonly style="opacity:.6"/></div>
+    <div><label class="fl">Skills (comma separated)</label><input class="fi" id="tp-skills" placeholder="e.g. UPS Repair, Networking, CCTV, Laptop Repair"/></div>
+    <div><label class="fl">Experience</label><input class="fi" id="tp-exp" placeholder="e.g. 5 years IT support"/></div>
+    <div><label class="fl">Availability</label>
+      <select class="fi fsel" id="tp-avail">
+        <option value="available">Available</option>
+        <option value="busy">Busy</option>
+        <option value="off">Off Today</option>
+      </select>
+    </div>
+    <div>
+      <label class="fl">Current Location</label>
+      <div class="loc" id="tp-loc-wrap">
+        <div class="loc-in">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.33 8 13 8 13s8-7.67 8-13a8 8 0 0 0-8-8z"/></svg>
+          <input id="tp-loc" placeholder="Tap GPS or type area..." oninput="lsrch(this.value,'tp-loc-drop')"/>
+        </div>
+        <div class="loc-drop" id="tp-loc-drop" style="display:none"></div>
+        <button class="loc-gps" onclick="captureTechGPS()">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+          Capture GPS Location
+        </button>
+      </div>
+      <div id="tp-coords" style="display:none;font-size:10px;color:var(--ac);padding:5px 0"></div>
+    </div>
+    <div><label class="fl">Additional Notes</label><textarea class="fi fta" id="tp-notes" placeholder="Any additional info about your services..."></textarea></div>
+  </div>
+  <div class="mact"><button class="bc" onclick="cmo('tprof')">Cancel</button><button class="bs" onclick="saveTechProfile()">Save Profile</button></div>
 </div></div>
 
 </body>
