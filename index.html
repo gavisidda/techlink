@@ -981,7 +981,8 @@ function rMore(){
       '<div class="uc-sb">+91 '+u.mobile+' · '+(u.joinedOn||'—')+'</div></div>'+
       '<span class="sb '+(u.active===false?'so':'si')+'" style="font-size:9px">'+(u.active===false?'Disabled':'Active')+'</span></div>'+
       '<div class="rca-acts">'+
-      '<button class="ra rav" onclick="openChR(\''+u.id+'\')">🔄 Role</button>'+
+      '<button class="ra rav" onclick="viewUserProfile(\''+u.id+'\')">👁 Profile</button>'+
+      '<button class="ra rapr" onclick="openChR(\''+u.id+'\')">🔄 Role</button>'+
       '<button class="ra raor" onclick="openRP(\''+u.id+'\',\''+u.name.replace(/'/g,'')+'\',\''+u.mobile+'\')">🔑 PIN</button>'+
       '<button class="ra rawa" onclick="wa(\''+u.mobile+'\',\''+u.name.replace(/'/g,'')+'\')">💬</button>'+
       '<button class="ra '+(u.active===false?'raok':'rano')+'" onclick="togAct(\''+u.id+'\')">'+( u.active===false?'Enable':'Disable')+'</button>'+
@@ -1003,6 +1004,7 @@ function rMore(){
   (COMPANY.hours?'🕐 '+COMPANY.hours:'')+'</div></div>':
   (ROLE==='admin'?'<div style="background:rgba(0,201,167,.07);border:1px dashed rgba(0,201,167,.3);border-radius:var(--rr);padding:12px;margin-bottom:10px;text-align:center;font-size:12px;color:var(--ac);cursor:pointer" onclick="openEditCompany()">'+
   '🏢 Tap to add your Company Details</div>':''))+
+  (ROLE==='technician'?companyCard(COMPANY):'')+
   '<div class="ml">'+
   (ROLE==='technician'?'<div class="mi" onclick="goS(\'tprof\')"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile &amp; Skills<svg class="arr" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>':'')+
   (ROLE==='admin'?'<div class="mi" onclick="goS(\'inv\')"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="5" rx="1"/><rect x="2" y="10" width="20" height="5" rx="1"/><rect x="2" y="17" width="20" height="5" rx="1"/></svg>Inventory<svg class="arr" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>'+
@@ -1057,6 +1059,7 @@ function rCh(){
   '<button class="bg" onclick="omo(\'ctkt\')">🔧 Service Request</button></div></div>'+
   '<div class="sg"><div class="sc cb2" data-i="🛒" onclick="goS(\'cordrs\')"><div class="sc-l">My Orders</div><div class="sc-v">'+D.orders.filter(o=>o.mobile===mob).length+'</div><div class="sc-s">Tap to view</div></div>'+
   '<div class="sc cg" data-i="🎫" onclick="goS(\'ctix\')"><div class="sc-l">My Tickets</div><div class="sc-v">'+D.tickets.filter(t=>t.mobile===mob).length+'</div><div class="sc-s">Tap to view</div></div></div>'+
+  companyCard(COMPANY)+
   '<div class="st" style="margin-bottom:8px">Our Services</div>'+
   SVCS.slice(0,4).map(s=>'<div class="svi" onclick="omo(\'ctkt\')"><div class="svi-i">'+s.i+'</div><div><div class="svi-n">'+s.n+'</div><div class="svi-d">'+s.d+'</div></div><div class="svi-p">'+s.p+'</div></div>').join('')+
   '<button class="bg" style="width:100%;margin-top:4px" onclick="goS(\'ctix\')">View all services →</button><div style="height:8px"></div>';
@@ -1193,18 +1196,84 @@ async function cSubTkt(){
   }catch(e){toast(e.message);}hl();BUSY=false;
 }
 
+
+// ── COMPANY CARD helper (shown to all roles) ──────
+function companyCard(c){
+  if(!c||!c.bname)return'<div style="background:var(--cd);border:1px solid var(--bd);border-radius:var(--rr);padding:12px;margin-bottom:10px;text-align:center;font-size:12px;color:var(--mt)">Company details not set up yet.</div>';
+  return'<div style="background:var(--cd);border:1px solid var(--bd);border-radius:var(--rr);padding:13px;margin-bottom:10px">'+
+  '<div style="font-family:var(--fh);font-size:15px;font-weight:700;margin-bottom:6px;color:var(--ac)">🏢 '+(c.bname||'TechLink')+'</div>'+
+  '<div style="font-size:12px;color:var(--mt);line-height:1.8;margin-bottom:10px">'+
+  (c.owner?'👤 '+c.owner+'<br>':'')+
+  (c.caddr?'📍 '+c.caddr+(c.clmk?'<br>🏠 '+c.clmk:'')+'<br>':'')+
+  (c.city?'🌆 '+c.city+'<br>':'')+
+  (c.hours?'🕐 '+c.hours:'')+'</div>'+
+  '<div style="display:flex;gap:8px">'+
+  (c.wa?'<button style="flex:1;padding:9px;background:#1b4332;color:#25D366;border-radius:9px;font-size:12px;font-weight:700;border:1px solid #25D366" onclick="wa(\''+c.wa+'\',\''+c.bname+'\')">💬 WhatsApp</button>':'<button style="flex:1;padding:9px;background:#1b4332;color:#25D366;border-radius:9px;font-size:12px;font-weight:700;border:1px solid #25D366" onclick="toast(&apos;Contact admin for WhatsApp&apos;)">WhatsApp</button>')+
+  (c.cmob?'<button style="flex:1;padding:9px;background:rgba(0,201,167,.1);color:var(--ac);border-radius:9px;font-size:12px;font-weight:700;border:1px solid rgba(0,201,167,.3)" onclick="window.location.href=\'tel:+91'+c.cmob+'\'">Call</button>':'<button style="flex:1;padding:9px;background:rgba(0,201,167,.1);color:var(--ac);border-radius:9px;font-size:12px;font-weight:700;border:1px solid rgba(0,201,167,.3)" onclick="toast(\'Contact admin for phone\')">Call</button>')+
+  '</div></div>';
+}
+
 // ── CUSTOMER PROFILE ──────────────────────────────
 function rCprof(){
+  var u=D.users.find(function(x){return x.id===U.id;})||U;
   document.getElementById('s-cprof').innerHTML=
-  '<div class="ph"><div class="av">'+U.name.charAt(0)+'</div><div><div class="pn">'+U.name+'</div><div class="pr">+91 '+U.mobile+' · Customer</div></div></div>'+
-  '<div style="background:var(--cd);border:1px solid var(--bd);border-radius:var(--rr);padding:13px;margin-bottom:10px">'+
-  '<div style="font-family:var(--fh);font-size:14px;font-weight:700;color:var(--ac);margin-bottom:8px">📞 TechLink Support</div>'+
-  '<div style="font-size:12px;color:var(--mt);margin-bottom:10px">IT · UPS · Battery · Bangalore<br>Mon–Sat 9AM–7PM · Emergency 24×7</div>'+
-  '<div style="display:flex;gap:8px"><button style="flex:1;padding:10px;background:#1b4332;color:#25D366;border-radius:9px;font-size:12px;font-weight:700;border:1px solid #25D366" onclick="toast(\'Opening WhatsApp...\')">💬 WhatsApp</button>'+
-  '<button style="flex:1;padding:10px;background:rgba(0,201,167,.1);color:var(--ac);border-radius:9px;font-size:12px;font-weight:700;border:1px solid rgba(0,201,167,.3)" onclick="toast(\'Calling support...\')">📞 Call</button></div></div>'+
-  '<div class="ml"><div class="mi" onclick="goS(\'cordrs\')"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2 M9 12h6" stroke-linecap="round" stroke-linejoin="round"/></svg>My Orders<svg class="arr" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>'+
+  '<div class="ph"><div class="av">'+U.name.charAt(0)+'</div>'+
+  '<div><div class="pn">'+U.name+'</div><div class="pr">+91 '+U.mobile+' · Customer</div></div>'+
+  '<button class="ba" style="font-size:11px;padding:5px 10px;margin-left:auto" onclick="openCustProfile()">✏ Edit</button></div>'+
+  '<div style="background:var(--cd);border:1px solid var(--bd);border-radius:var(--rr);padding:12px;margin-bottom:10px">'+
+  [['📍 Address',u.location||''],['🏠 Landmark',u.landmark||''],
+   ['📋 Notes',u.custNotes||''],
+   ['📡 GPS',u.lat?u.lat.toFixed(5)+', '+u.lng.toFixed(5):'']]
+  .filter(function(r){return r[1];})
+  .map(function(r){return'<div style="display:flex;gap:9px;padding:6px 0;border-bottom:1px solid var(--bd)">'+
+    '<span style="font-size:12px;min-width:95px;color:var(--mt)">'+r[0]+'</span>'+
+    '<span style="font-size:12px;flex:1">'+r[1]+'</span></div>';}).join('')+
+  ((!u.location&&!u.landmark&&!u.custNotes)?'<div style="font-size:12px;color:var(--mt);text-align:center;padding:8px">Tap ✏ Edit to add your profile</div>':'')+
+  '</div>'+
+  companyCard(COMPANY)+
+  '<div class="ml">'+
+  '<div class="mi" onclick="goS(\'cordrs\')"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2 M9 12h6" stroke-linecap="round" stroke-linejoin="round"/></svg>My Orders<svg class="arr" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>'+
   '<div class="mi" onclick="goS(\'ctix\')"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke-linecap="round" stroke-linejoin="round"/></svg>Service Requests<svg class="arr" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>'+
-  '<div class="mi dng" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</div></div>';
+  '<div class="mi dng" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</div></div>'+
+  '<div style="height:8px"></div>';
+}
+var _custGPSLat=null,_custGPSLng=null;
+function openCustProfile(){
+  var u=D.users.find(function(x){return x.id===U.id;})||U;
+  sv('cprof-name',u.name||'');sv('cprof-mob',u.mobile||'');
+  sv('cprof-loc',u.location||'');sv('cprof-lmk',u.landmark||'');sv('cprof-notes',u.custNotes||'');
+  _custGPSLat=u.lat||null;_custGPSLng=u.lng||null;
+  var cd=document.getElementById('cprof-coords');
+  if(cd){if(_custGPSLat){cd.style.display='block';cd.textContent='📡 GPS: '+_custGPSLat.toFixed(5)+', '+_custGPSLng.toFixed(5);}else cd.style.display='none';}
+  var dp=document.getElementById('cprof-loc-drop');if(dp)dp.style.display='none';
+  omo('cprof-edit');
+}
+function captureCustGPS(){
+  if(!navigator.geolocation){toast('GPS not supported');return;}
+  var el=document.getElementById('cprof-loc');
+  var cd=document.getElementById('cprof-coords');
+  if(el)el.value='📡 Getting location...';
+  navigator.geolocation.getCurrentPosition(function(pos){
+    _custGPSLat=pos.coords.latitude;_custGPSLng=pos.coords.longitude;
+    fetch('https://nominatim.openstreetmap.org/reverse?lat='+_custGPSLat+'&lon='+_custGPSLng+'&format=json')
+      .then(function(r){return r.json();})
+      .then(function(d){
+        var addr=d.display_name||(_custGPSLat.toFixed(5)+', '+_custGPSLng.toFixed(5));
+        if(el)el.value=addr;
+        if(cd){cd.style.display='block';cd.textContent='📡 GPS: '+_custGPSLat.toFixed(5)+', '+_custGPSLng.toFixed(5);}
+        toast('📍 Location captured!');
+      }).catch(function(){if(el)el.value=_custGPSLat.toFixed(5)+', '+_custGPSLng.toFixed(5);});
+  },function(e){
+    if(el)el.value='';
+    toast({1:'Location denied.',2:'Unavailable.',3:'Timed out.'}[e.code]||'GPS error');
+  },{enableHighAccuracy:true,timeout:10000,maximumAge:0});
+}
+async function saveCustProfile(){
+  if(BUSY)return;var nm=gv('cprof-name');if(!nm){toast('Name cannot be empty');return;}
+  BUSY=true;ld('Saving...');
+  var upd={name:nm,location:gv('cprof-loc'),landmark:gv('cprof-lmk'),custNotes:gv('cprof-notes'),lat:_custGPSLat,lng:_custGPSLng};
+  try{await fset('users',U.id,upd);Object.assign(U,upd);cmo('cprof-edit');rCprof();toast('✅ Profile updated!');}
+  catch(e){toast('Error: '+e.message);}hl();BUSY=false;
 }
 
 // ── LOCATION ──────────────────────────────────────
@@ -1217,7 +1286,7 @@ function lsrch(q,did){
     try{
       const res=await(await fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(q+', Bangalore, Karnataka, India')+'&format=json&limit=5&addressdetails=1')).json();
       const dr2=document.getElementById(did);if(!dr2)return;
-      const mp={'ct-drop':'ct-addr','co-drop':'co-addr','ce-drop':'ce-addr'};
+      const mp={'ct-drop':'ct-addr','co-drop':'co-addr','ce-drop':'ce-addr','cprof-loc-drop':'cprof-loc','tp-loc-drop':'tp-loc','co-cloc-drop':'co-caddr'};
       const iid=mp[did]||'co-addr';
       if(!res||!res.length){dr2.innerHTML='<div class="loc-di"><span style="color:var(--mt);font-size:11px">No results found.</span></div>';return;}
       dr2.innerHTML=res.map(function(r){const s=r.display_name.replace(/'/g,"&#39;").replace(/"/g,"&quot;");return'<div class="loc-di" onclick="pkd(\''+iid+'\',\''+did+'\',\''+s+'\')"><span>📍</span><span>'+r.display_name+'</span></div>';}).join('');
@@ -1514,7 +1583,8 @@ function rTprof(){
     '<span style="font-size:12px;flex:1">'+r[1]+'</span></div>';
   }).join('')+
   '</div>'+
-  '<button class="ba" style="width:100%" onclick="openTechProfile()">✏ Update Profile</button>'+
+  '<button class="ba" style="width:100%;margin-bottom:10px" onclick="openTechProfile()">✏ Update Profile</button>'+
+  companyCard(COMPANY)+
   '<div style="height:8px"></div>';
 }
 
@@ -1578,6 +1648,135 @@ async function saveTechProfile(){
     toast('✅ Profile updated!');
   }catch(e){toast('Error: '+e.message);}
   hl();BUSY=false;
+}
+
+
+// ── VIEW USER PROFILE (Admin) ─────────────────────
+function viewUserProfile(uid){
+  var u=D.users.find(function(x){return x.id===uid;});if(!u)return;
+  var isT=u.role==='technician';var isA=u.role==='admin';
+  var avEl=document.getElementById('uvp-av');
+  avEl.textContent=u.name.charAt(0).toUpperCase();
+  avEl.style.background=isA?'linear-gradient(135deg,#e74c3c,#c0392b)':isT?'linear-gradient(135deg,var(--or),#e07000)':'linear-gradient(135deg,#00c9a7,#0099cc)';
+  document.getElementById('uvp-name').textContent=u.name;
+  document.getElementById('uvp-role').innerHTML='+91 '+u.mobile+
+    ' <span class="rt '+(isA?'rta':isT?'rtt':'rtc')+'">'+u.role+'</span>'+
+    (u.active===false?' <span class="sb so" style="font-size:9px">Disabled</span>':'');
+
+  var rows=[];
+  rows.push(['📱 Mobile','+91 '+u.mobile]);
+  rows.push(['🎭 Role',u.role]);
+  rows.push(['📅 Joined',u.joinedOn||'—']);
+  rows.push(['🟢 Status',u.active===false?'Disabled':'Active']);
+  if(isT||isA){
+    rows.push(['🔧 Skills',u.skills||'—']);
+    rows.push(['💼 Experience',u.experience||'—']);
+    rows.push(['📡 Availability',u.availability||'—']);
+    rows.push(['📍 Location',u.location||'—']);
+    if(u.lat&&u.lng)rows.push(['🗺 GPS',u.lat.toFixed(5)+', '+u.lng.toFixed(5)]);
+    rows.push(['📋 Tech Notes',u.techNotes||'—']);
+  } else {
+    rows.push(['📍 Address',u.location||'—']);
+    rows.push(['🏠 Landmark',u.landmark||'—']);
+    rows.push(['📋 Notes',u.custNotes||'—']);
+  }
+
+  document.getElementById('uvp-body').innerHTML=
+    rows.filter(function(r){return r[1]&&r[1]!=='—';})
+    .map(function(r){
+      return'<div class="dr"><span class="dr-l">'+r[0]+'</span><span class="dr-v">'+r[1]+'</span></div>';
+    }).join('')||'<div style="font-size:12px;color:var(--mt);padding:8px 0">No additional profile info yet.</div>';
+
+  // Actions
+  var uid2=u.id;var mob2=u.mobile;var nm2=u.name.replace(/'/g,'');
+  document.getElementById('uvp-actions').innerHTML=
+    '<button class="ba" style="flex:1;font-size:11px;padding:8px" onclick="wa(\''+mob2+'\',\''+nm2+'\')">💬 WhatsApp</button>'+
+    '<button class="bg" style="flex:1;font-size:11px;padding:8px" onclick="cmo(\'user-profile\');openRP(\''+uid2+'\',\''+nm2+'\',\''+mob2+'\')">🔑 Reset PIN</button>'+
+    '<button class="bg" style="flex:1;font-size:11px;padding:8px" onclick="cmo(\'user-profile\');openChR(\''+uid2+'\')">🔄 Role</button>';
+
+  omo('user-profile');
+}
+
+
+// ── VIEW USER PROFILE (admin) ─────────────────────
+function viewUserProfile(uid){
+  var u=D.users.find(function(x){return x.id===uid;});
+  if(!u)return;
+  var isTech=u.role==='technician';
+  var roleCls=u.role==='admin'?'rta':isTech?'rtt':'rtc';
+  document.getElementById('vup-ttl').textContent=u.name;
+  document.getElementById('vup-role-badge').innerHTML=
+    '<span class="rt '+roleCls+'">'+u.role+'</span>'+
+    ' <span class="sb '+(u.active===false?'so':'si')+'" style="font-size:9px">'+(u.active===false?'Disabled':'Active')+'</span>';
+
+  var rows=[
+    ['📱 Mobile','+91 '+u.mobile],
+    ['📅 Joined',u.joinedOn||'—'],
+    ['📍 Location',u.location||'—'],
+    ['🏠 Landmark',u.landmark||'—'],
+  ];
+  if(isTech){
+    rows.push(['🔧 Skills',u.skills||'—']);
+    rows.push(['💼 Experience',u.experience||'—']);
+    rows.push(['🟢 Availability',u.availability||'—']);
+    rows.push(['📋 Tech Notes',u.techNotes||'—']);
+  } else {
+    rows.push(['📋 Notes',u.custNotes||'—']);
+  }
+  if(u.lat){rows.push(['📡 GPS',u.lat.toFixed(5)+', '+u.lng.toFixed(5)]);}
+
+  document.getElementById('vup-body').innerHTML=
+    rows.map(function(r){
+      return'<div class="dr"><span class="dr-l">'+r[0]+'</span><span class="dr-v">'+r[1]+'</span></div>';
+    }).join('');
+
+  document.getElementById('vup-actions').innerHTML=
+    '<button class="ra rapr" style="flex:1;padding:9px;font-size:12px" onclick="openChR(\''+uid+'\');cmo(\'view-user\')">🔄 Change Role</button>'+
+    '<button class="ra raor" style="flex:1;padding:9px;font-size:12px" onclick="openRP(\''+uid+'\',\''+u.name.replace(/'/g,'')+'\',\''+u.mobile+'\');cmo(\'view-user\')">🔑 Reset PIN</button>'+
+    '<button class="ra rawa" style="flex:1;padding:9px;font-size:12px" onclick="wa(\''+u.mobile+'\',\''+u.name.replace(/'/g,'')+'\')">💬</button>';
+
+  omo('view-user');
+}
+
+
+// ── VIEW USER PROFILE (admin) ─────────────────────
+function viewUserProfile(uid){
+  var u=D.users.find(function(x){return x.id===uid;});if(!u)return;
+  var it=u.role==='technician';
+  var avbg=u.role==='admin'?'background:linear-gradient(135deg,var(--rd),#c0392b)':
+           it?'background:linear-gradient(135deg,var(--or),#e07000)':'background:linear-gradient(135deg,#00c9a7,#0099cc)';
+  var rows=it?[
+    ['Skills',u.skills||'Not set'],['Experience',u.experience||'Not set'],
+    ['Availability',u.availability||'available'],['Location',u.location||'Not set'],
+    ['Notes',u.techNotes||'Not set']
+  ]:[
+    ['Address',u.location||'Not set'],['Landmark',u.landmark||'Not set'],
+    ['Notes',u.custNotes||'Not set']
+  ];
+  if(u.lat)rows.push(['GPS Coords',u.lat.toFixed(5)+', '+u.lng.toFixed(5)]);
+  document.getElementById('vuser-body').innerHTML=
+    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">'+
+    '<div style="width:52px;height:52px;border-radius:50%;'+avbg+';display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:22px;font-weight:700;color:#fff;flex-shrink:0">'+u.name.charAt(0).toUpperCase()+'</div>'+
+    '<div>'+
+    '<div style="font-family:var(--fh);font-size:17px;font-weight:700">'+u.name+'</div>'+
+    '<div style="margin-top:3px"><span class="rt '+(u.role==='admin'?'rta':it?'rtt':'rtc')+'">'+u.role+'</span>'+
+    ' <span class="sb '+(u.active===false?'so':'si')+'">'+( u.active===false?'Disabled':'Active')+'</span></div>'+
+    '<div style="font-size:11px;color:var(--mt);margin-top:3px">+91 '+u.mobile+' &middot; Joined: '+(u.joinedOn||'&mdash;')+'</div>'+
+    '</div></div>'+
+    '<div style="background:var(--cd);border:1px solid var(--bd);border-radius:var(--rr);overflow:hidden;margin-bottom:12px">'+
+    rows.map(function(r){
+      return'<div style="display:flex;gap:10px;padding:8px 12px;border-bottom:1px solid var(--bd)">'+
+      '<span style="font-size:11px;color:var(--mt);min-width:95px;flex-shrink:0">'+r[0]+'</span>'+
+      '<span style="font-size:12px;flex:1;word-break:break-word">'+r[1]+'</span></div>';
+    }).join('')+
+    '</div>'+
+    '<div style="display:flex;gap:7px;flex-wrap:wrap">'+
+    '<button class="ba" style="font-size:11px;padding:6px 11px" onclick="cmo(\'vuser\');openChR(\''+u.id+'\')">Change Role</button>'+
+    '<button class="btn-o" style="font-size:11px;padding:6px 11px" onclick="cmo(\'vuser\');openRP(\''+u.id+'\',\''+u.name.replace(/'/g,'')+'\',\''+u.mobile+'\')">Reset PIN</button>'+
+    '<button class="ra rawa" style="padding:6px 11px" onclick="wa(\''+u.mobile+'\',\''+u.name.replace(/'/g,'')+'\')">WhatsApp</button>'+
+    (u.lat?'<button class="bg" style="font-size:11px;padding:6px 11px" onclick="window.open(\'https://maps.google.com/?q='+u.lat+','+u.lng+'\')">Maps</button>':'')+
+    '</div>';
+  omo('vuser');
 }
 
 window.addEventListener('DOMContentLoaded',init);
@@ -1702,5 +1901,62 @@ window.addEventListener('DOMContentLoaded',init);
   <div class="mact"><button class="bc" onclick="cmo('tprof')">Cancel</button><button class="bs" onclick="saveTechProfile()">Save Profile</button></div>
 </div></div>
 
+
+<!-- MODAL: Customer Profile Edit -->
+<div class="mo" id="mo-cprof-edit"><div class="ms">
+  <div class="mh"></div><div class="mt2">Edit My Profile</div>
+  <div class="fg">
+    <div><label class="fl">Full Name *</label><input class="fi" id="cprof-name" placeholder="Your full name"/></div>
+    <div><label class="fl">Mobile</label><input class="fi" id="cprof-mob" readonly style="opacity:.6"/></div>
+    <div>
+      <label class="fl">Address / Area</label>
+      <div class="loc">
+        <div class="loc-in"><svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.33 8 13 8 13s8-7.67 8-13a8 8 0 0 0-8-8z"/></svg>
+          <input id="cprof-loc" placeholder="Type address or use GPS..." oninput="lsrch(this.value,'cprof-loc-drop')"/></div>
+        <div class="loc-drop" id="cprof-loc-drop" style="display:none"></div>
+        <button class="loc-gps" onclick="captureCustGPS()">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+          Capture GPS Location</button>
+      </div>
+      <div id="cprof-coords" style="display:none;font-size:10px;color:var(--ac);padding:5px 0"></div>
+    </div>
+    <div><label class="fl">Landmark</label><input class="fi" id="cprof-lmk" placeholder="Near school, temple, metro..."/></div>
+    <div><label class="fl">Notes (optional)</label><textarea class="fi fta" id="cprof-notes" placeholder="Any additional info..."></textarea></div>
+  </div>
+  <div class="mact"><button class="bc" onclick="cmo('cprof-edit')">Cancel</button><button class="bs" onclick="saveCustProfile()">Save Profile</button></div>
+</div></div>
+
+<!-- MODAL: Admin View User Profile -->
+<div class="mo" id="mo-user-profile"><div class="ms">
+  <div class="mh"></div>
+  <div style="display:flex;align-items:center;gap:11px;margin-bottom:14px">
+    <div class="av" id="uvp-av" style="width:46px;height:46px;font-size:19px"></div>
+    <div><div class="pn" id="uvp-name"></div><div class="pr" id="uvp-role"></div></div>
+  </div>
+  <div id="uvp-body"></div>
+  <div style="display:flex;gap:8px;margin-top:12px" id="uvp-actions"></div>
+  <div style="margin-top:10px"><button class="bc" style="width:100%" onclick="cmo('user-profile')">Close</button></div>
+</div></div>
+
+
+<!-- MODAL: View User Profile (admin) -->
+<div class="mo" id="mo-view-user"><div class="ms">
+  <div class="mh"></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <div class="mt2" style="margin-bottom:0" id="vup-ttl">User Profile</div>
+    <span id="vup-role-badge"></span>
+  </div>
+  <div id="vup-body"></div>
+  <div style="display:flex;gap:8px;margin-top:14px" id="vup-actions"></div>
+  <button class="bc" style="width:100%;margin-top:8px" onclick="cmo('view-user')">Close</button>
+</div></div>
+
+
+<!-- MODAL: View User Profile -->
+<div class="mo" id="mo-vuser"><div class="ms">
+  <div class="mh"></div>
+  <div id="vuser-body"></div>
+  <div style="margin-top:12px"><button class="bc" style="width:100%" onclick="cmo('vuser')">Close</button></div>
+</div></div>
 </body>
 </html>
